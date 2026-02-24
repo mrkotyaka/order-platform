@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.mrkotyaka.orderservice.domain.OrderStatus;
+import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
