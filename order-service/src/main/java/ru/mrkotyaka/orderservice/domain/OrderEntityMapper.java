@@ -5,7 +5,7 @@ import ru.mrkotyaka.orderservice.api.CreateOrderRequestDto;
 import ru.mrkotyaka.orderservice.api.OrderDto;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
-public interface OrderMapper {
+public interface OrderEntityMapper {
     OrderEntity toOrderEntity(CreateOrderRequestDto request);
 
     @AfterMapping

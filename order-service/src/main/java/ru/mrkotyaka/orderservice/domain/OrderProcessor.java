@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class OrderProcessor {
     private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
+    private final OrderEntityMapper orderMapper;
 
     public OrderEntity create(CreateOrderRequestDto request) {
         var entity = orderMapper.toOrderEntity(request);
