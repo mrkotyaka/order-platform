@@ -1,3 +1,18 @@
 spring:
   application:
     name: order-service
+  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    password: postgres
+#    username: postgres
+#    url: jdbc:postgresql://localhost:5433/orders
+    driver-class-name: org.postgresql.Driver
+    password: ${POSTGRES_PASSWORD:postgres}
+    username: ${POSTGRES_USER:postgres}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_ORDERS:orders}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 8087
