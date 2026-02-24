@@ -1,8 +1,8 @@
-package ru.mrkotyaka.orderservice.domain;
+package ru.mrkotyaka.orderservice.domain.db;
 
 import org.mapstruct.*;
-import ru.mrkotyaka.orderservice.api.CreateOrderRequestDto;
-import ru.mrkotyaka.orderservice.api.OrderDto;
+import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
+import ru.mrkotyaka.commonlibs.http.order.OrderDto;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface OrderEntityMapper {

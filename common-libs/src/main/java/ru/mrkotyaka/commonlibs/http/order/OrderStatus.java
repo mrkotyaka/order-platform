@@ -1,4 +1,4 @@
-package ru.mrkotyaka.orderservice.domain;
+package ru.mrkotyaka.commonlibs.http.order;
 
 public enum OrderStatus {
     PENDING_PAYMENT,

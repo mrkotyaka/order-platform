@@ -3,7 +3,9 @@ package ru.mrkotyaka.orderservice.api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.mrkotyaka.orderservice.domain.OrderEntityMapper;
+import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
+import ru.mrkotyaka.commonlibs.http.order.OrderDto;
+import ru.mrkotyaka.orderservice.domain.db.OrderEntityMapper;
 import ru.mrkotyaka.orderservice.domain.OrderProcessor;
 
 @Slf4j

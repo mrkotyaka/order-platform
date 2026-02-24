@@ -1,6 +1,4 @@
-package ru.mrkotyaka.orderservice.api;
-
-import jakarta.persistence.Column;
+package ru.mrkotyaka.commonlibs.http.order;
 
 public record OrderItemRequestDto(
         Long itemId,

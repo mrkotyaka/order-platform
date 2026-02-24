@@ -1,4 +1,4 @@
-package ru.mrkotyaka.orderservice.domain;
+package ru.mrkotyaka.orderservice.domain.db;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

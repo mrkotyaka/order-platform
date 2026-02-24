@@ -1,10 +1,11 @@
-package ru.mrkotyaka.orderservice.domain;
+package ru.mrkotyaka.orderservice.domain.db;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.mrkotyaka.orderservice.domain.OrderStatus;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;

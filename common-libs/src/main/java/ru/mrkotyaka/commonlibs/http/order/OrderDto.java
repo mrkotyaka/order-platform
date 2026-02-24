@@ -1,6 +1,4 @@
-package ru.mrkotyaka.orderservice.api;
-
-import ru.mrkotyaka.orderservice.domain.OrderStatus;
+package ru.mrkotyaka.commonlibs.http.order;
 
 import java.math.BigDecimal;
 import java.util.Set;

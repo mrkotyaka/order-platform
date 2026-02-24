@@ -1,4 +1,4 @@
-package ru.mrkotyaka.orderservice.api;
+package ru.mrkotyaka.commonlibs.http.order;
 
 import java.math.BigDecimal;
 
