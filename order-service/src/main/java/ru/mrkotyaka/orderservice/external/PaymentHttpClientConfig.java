@@ -24,10 +24,8 @@ public class PaymentHttpClientConfig {
 
     @Bean
     PaymentHttpClient paymentHttpClient(RestClient paymentRestClient) {
-        return HttpServiceProxyFactory
-                .builder()
-                .exchangeAdapter(RestClientAdapter
-                        .create(paymentRestClient))
+        return HttpServiceProxyFactory.builder()
+                .exchangeAdapter(RestClientAdapter.create(paymentRestClient))
                 .build()
                 .createClient(PaymentHttpClient.class);
     }

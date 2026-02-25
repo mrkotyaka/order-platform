@@ -13,8 +13,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 public class DeliveryProcessor {
+
     private final DeliveryRepository deliveryRepository;
     private final KafkaTemplate<Long, DeliveryAssignedEvent> kafkaTemplate;
 
@@ -22,17 +23,15 @@ public class DeliveryProcessor {
     private String deliveryAssignedTopic;
 
     public void processOrderPaid(OrderPaidEvent event) {
+
         var orderId = event.orderId();
         var found = deliveryRepository.findByOrderId(orderId);
-
-
         if (found.isPresent()) {
             log.info("Found order delivery was already assigned: delivery={}", found.get());
             return;
         }
 
         var assignedDelivery = assignDelivery(orderId);
-
         sendDeliveryAssignedEvent(assignedDelivery);
     }
 
@@ -43,6 +42,7 @@ public class DeliveryProcessor {
         entity.setEtaMinutes(ThreadLocalRandom.current().nextInt(10, 45));
 
         log.info("Saved order delivery was assigned: delivery={}", entity);
+
         return deliveryRepository.save(entity);
     }
 
@@ -55,7 +55,7 @@ public class DeliveryProcessor {
                         .orderId(assignedDelivery.getOrderId())
                         .etaMinutes(assignedDelivery.getEtaMinutes())
                         .build()
-        ).thenAccept(kafkaDelivery -> {
+        ).thenAccept(result -> {
             log.info("Delivery assigned to delivery={}", assignedDelivery.getId());
         });
     }

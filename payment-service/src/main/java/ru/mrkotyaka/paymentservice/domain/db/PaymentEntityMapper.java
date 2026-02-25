@@ -8,6 +8,7 @@ import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PaymentEntityMapper {
+
     PaymentEntity toEntity(CreatePaymentRequestDto request);
 
     @Mapping(source = "id", target = "paymentId")

@@ -11,6 +11,7 @@ import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
         url = "/api/payments"
 )
 public interface PaymentHttpClient {
+
     @PostExchange
     CreatePaymentResponseDto createPayment(@RequestBody CreatePaymentRequestDto request);
 }

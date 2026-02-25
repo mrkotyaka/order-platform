@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
+import ru.mrkotyaka.commonlibs.http.payment.PaymentMethod;
 import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentEntityMapper;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentRepository;
@@ -28,7 +29,7 @@ public class PaymentService {
 
         var entity = paymentMapper.toEntity(request);
 
-        var paymentStatus = request.paymentMethod().equals(ru.mrkotyaka.commonlibs.http.payment.PaymentMethod.QR)
+        var paymentStatus = request.paymentMethod().equals(PaymentMethod.QR)
                 ? PaymentStatus.PAYMENT_FAILED
                 : PaymentStatus.PAYMENT_SUCCEEDED;
 

@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.mrkotyaka.commonlibs.http.payment.PaymentMethod;
 import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
 
 import java.math.BigDecimal;
 
 @Setter
 @Getter
+@NamedEntityGraph
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -33,5 +35,5 @@ public class PaymentEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
-    private ru.mrkotyaka.commonlibs.http.payment.PaymentMethod paymentMethod;
+    private PaymentMethod paymentMethod;
 }
