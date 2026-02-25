@@ -47,7 +47,7 @@ public class OrderProcessor {
         var orderItemEntityOpt = orderRepository.findById(id);
         return orderItemEntityOpt
                 .orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
     }
 
 
@@ -72,8 +72,7 @@ public class OrderProcessor {
             throw new RuntimeException("Order status is not PENDING_PAYMENT");
         }
         var response = paymentHttpClient
-                .createPayment(CreatePaymentRequestDto
-                        .builder()
+                .createPayment(CreatePaymentRequestDto.builder()
                         .orderId(id)
                         .paymentMethod(request.paymentMethod())
                         .amount(entity.getTotalAmount())
@@ -85,6 +84,9 @@ public class OrderProcessor {
 
         entity.setOrderStatus(status);
         sendOrderPaidEvent(entity, response);
+        if (status.equals(OrderStatus.PAID)) {
+            sendOrderPaidEvent(entity, response);
+        }
         return orderRepository.save(entity);
     }
 
@@ -95,8 +97,7 @@ public class OrderProcessor {
         kafkaTemplate.send(
                 orderPaidTopic,
                 entity.getId(),
-                OrderPaidEvent
-                        .builder()
+                OrderPaidEvent.builder()
                         .orderId(entity.getId())
                         .amount(entity.getTotalAmount())
                         .paymentMethod(response.paymentMethod())
@@ -126,7 +127,7 @@ public class OrderProcessor {
         if (order.getOrderStatus().equals(OrderStatus.DELIVERY_ASSIGNED)) {
             log.info("Order delivery already assigned: orderId={}", order.getId());
         } else {
-            log.error("Trying to assign delivery but order have incorrect state: state={}",  order.getId());
+            log.error("Trying to assign delivery but order have incorrect state: state={}", order.getId());
         }
     }
 }
