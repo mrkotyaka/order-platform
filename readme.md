@@ -91,9 +91,9 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ payment-service
 - ✔️ delivery-service
 - authentification-service
-- notification-service. Sending email to customers and couriers. Use RabbitMQ
-- cart-service
-- catalog-service
+- notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis)
+- cart-service (user-service, logging, create new)
+- catalog-service (menu-service)
 - items (id, name, price)
 - customers (id, name, email, phone)
 - couriers (id, name, email, phone)
