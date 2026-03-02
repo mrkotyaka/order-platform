@@ -8,6 +8,7 @@ import lombok.Setter;
 import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -26,9 +27,13 @@ public class DeliveryEntity {
     @Column(name = "order_id", nullable = false, unique = true)
     private Long orderId;
 
-    @Column(name = "courier_name", nullable = false)
-    private String courierName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "courier_id")
+    private CourierEntity courierId;
 
     @Column(name = "eta_minutes", nullable = false)
     private Integer etaMinutes;
+
+    @Column(name = "delivery_datetime")
+    private LocalDateTime deliveryDateTime;
 }

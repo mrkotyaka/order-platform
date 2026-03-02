@@ -90,11 +90,21 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ order-service
 - ✔️ payment-service
 - ✔️ delivery-service
+- ✔️ couriers (id, name, email, phone)
+- ✔️ impl couriers
+- ✔️ assign free courier for an order
 - authentification-service
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis)
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
 - items (id, name, price)
 - customers (id, name, email, phone)
-- couriers (id, name, email, phone)
 - implements Liquibase or Flyway (spring.jpa.hibernate.ddl-auto=validate)
+- in order_items rename courier_name to courier_id. implements logic
+- in orders rename address to delivery_address. implements logic
+- make default for delivery_address - fill by default from customers.address if null
+- impl items
+- impl customers
+- notification-service - check by null email
+- get order - check customer login (id)
+- deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id 
