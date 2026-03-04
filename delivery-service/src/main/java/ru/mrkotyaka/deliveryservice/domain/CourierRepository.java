@@ -12,19 +12,21 @@ import java.util.Optional;
 @Repository
 public interface CourierRepository extends JpaRepository<CourierEntity, Long> {
 
-        @Query("""
-                SELECT c FROM CourierEntity c
-                           LEFT JOIN c.deliveries d
-                                      WHERE function('timestamp_add_minutes', d.deliveryDateTime, d.etaMinutes) < :now
-                                                      ORDER BY c.rating DESC
-                """)
-        Optional<List<CourierEntity>> findAllFree(@Param("now") LocalDateTime now);
+    @Query(value = """
+            SELECT c.* FROM couriers c
+            LEFT JOIN deliveries d ON c.id = d.courier_id
+            WHERE d.id IS NULL
+            OR (d.delivery_datetime + (d.eta_minutes || ' minutes')::interval) < :now
+            ORDER BY c.rating DESC
+            """, nativeQuery = true)
+    Optional<List<CourierEntity>> findAllFree(@Param("now") LocalDateTime now);
 
-        @Query("""
-                SELECT c FROM CourierEntity c
-                           LEFT JOIN c.deliveries d
-                                      WHERE function('timestamp_add_minutes', d.deliveryDateTime, d.etaMinutes) < :now
-                                                      ORDER BY c.rating DESC LIMIT 1
-                """)
-        Optional<CourierEntity> findOneFree(LocalDateTime now);
+    @Query(value = """
+            SELECT c.* FROM couriers c
+            LEFT JOIN deliveries d ON c.id = d.courier_id
+            WHERE d.id IS NULL
+            OR (d.delivery_datetime + (d.eta_minutes || ' minutes')::interval) < :now
+            ORDER BY c.rating DESC LIMIT 1
+            """, nativeQuery = true)
+    Optional<CourierEntity> findOneFree(LocalDateTime now);
 }

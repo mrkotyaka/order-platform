@@ -1,13 +1,16 @@
 package ru.mrkotyaka.deliveryservice.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,14 +30,19 @@ public class CourierEntity {
     @Min(0)
     @Max(5)
     @Column(name = "rating", precision = 3, scale = 1)
-    private double rating;
+    private BigDecimal rating;
 
     @Column(name = "address")
     private String address;
 
+    @Email(message = "Please provide a valid email address")
     @Column(name = "email")
     private String email;
 
+    @Pattern(
+            regexp = "^[0-9]{6,10}$",
+            message = "Phone number must be 6–10 digits"
+    )
     @Column(name = "phone", nullable = false, unique = true)
     private String phone;
 
