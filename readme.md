@@ -108,3 +108,4 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - notification-service - check by null email
 - get order - check customer login (id)
 - deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id 
+- add multithreading
