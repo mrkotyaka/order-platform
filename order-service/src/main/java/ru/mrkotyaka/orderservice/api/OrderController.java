@@ -21,6 +21,7 @@ public class OrderController {
     public OrderDto create(
             @RequestBody CreateOrderRequestDto request
     ) {
+        log.info("Processing the request in the flow: {}", Thread.currentThread());
         log.debug("Creating order: request={}", request);
         var saved = orderProcessor.create(request);
         return orderMapper.toOrderDto(saved);

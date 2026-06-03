@@ -7,6 +7,7 @@ import org.apache.kafka.common.serialization.LongSerializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.VirtualThreadTaskExecutor;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -54,6 +55,20 @@ public class KafkaConfiguration {
         var factory = new ConcurrentKafkaListenerContainerFactory<Long, DeliveryAssignedEvent>();
         factory.setConsumerFactory(deliveryAssignedEventConsumerFactory);
         factory.setBatchListener(false);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Object, Object> kafkaListenerContainerFactory(
+            ConsumerFactory<Object, Object> consumerFactory) {
+
+        ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory);
+
+        // Используем специальную обертку Spring для виртуальных потоков
+        // Она реализует интерфейс AsyncTaskExecutor
+        factory.getContainerProperties().setListenerTaskExecutor(new VirtualThreadTaskExecutor());
+
         return factory;
     }
 }

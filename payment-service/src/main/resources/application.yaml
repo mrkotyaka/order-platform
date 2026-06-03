@@ -10,6 +10,9 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  threads:
+    virtual:
+      enabled: true
 
 server:
   port: 8088

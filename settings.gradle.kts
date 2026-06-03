@@ -4,3 +4,5 @@ include(":common-libs")
 include(":order-service")
 include(":payment-service")
 include(":delivery-service")
+
+include("gateway-service")
