@@ -2,7 +2,9 @@ package ru.mrkotyaka.orderservice.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
 import ru.mrkotyaka.commonlibs.http.order.OrderDto;
 import ru.mrkotyaka.orderservice.domain.db.OrderEntityMapper;
@@ -29,10 +31,17 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public OrderDto getOne(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestHeader("X-User-Id") Long authenticatedUserId
     ) {
-        log.info("Retrieving order with id `{}`", id);
+        log.info("Retrieving order with id `{}` for user `{}`", id, authenticatedUserId);
         var found = orderProcessor.getOrderOrThrow(id);
+
+        if(!found.getId().equals(authenticatedUserId)){
+            log.warn("User `{}` tried to access order `{}` belonging to user `{}`",
+                    authenticatedUserId, id, found.getCustomerId());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this order");
+        }
         return orderMapper.toOrderDto(found);
     }
 

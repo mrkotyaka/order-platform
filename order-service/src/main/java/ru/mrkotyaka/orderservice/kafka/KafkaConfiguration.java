@@ -55,18 +55,8 @@ public class KafkaConfiguration {
         var factory = new ConcurrentKafkaListenerContainerFactory<Long, DeliveryAssignedEvent>();
         factory.setConsumerFactory(deliveryAssignedEventConsumerFactory);
         factory.setBatchListener(false);
-        return factory;
-    }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<Object, Object> kafkaListenerContainerFactory(
-            ConsumerFactory<Object, Object> consumerFactory) {
-
-        ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory);
-
-        // Используем специальную обертку Spring для виртуальных потоков
-        // Она реализует интерфейс AsyncTaskExecutor
+        // Перенес использование виртуальных потоков сюда
         factory.getContainerProperties().setListenerTaskExecutor(new VirtualThreadTaskExecutor());
 
         return factory;

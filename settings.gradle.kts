@@ -6,3 +6,4 @@ include(":payment-service")
 include(":delivery-service")
 
 include("gateway-service")
+include("auth-service")
