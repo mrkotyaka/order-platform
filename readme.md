@@ -93,7 +93,9 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ couriers (id, name, email, phone)
 - ✔️ impl couriers
 - ✔️ assign free courier for an order
-- authentification-service
+- ✔️ authentification-service
+- close the direct method call
+- change user on customer or add it
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
