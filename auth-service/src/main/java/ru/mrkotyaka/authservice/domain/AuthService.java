@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.mrkotyaka.authservice.domain.db.UserCredentials;
+import ru.mrkotyaka.authservice.domain.db.UserCredentialsMapper;
 import ru.mrkotyaka.authservice.domain.db.UserRepository;
 import ru.mrkotyaka.commonlibs.http.auth.AuthRequest;
 import ru.mrkotyaka.commonlibs.http.auth.UserRoles;
@@ -17,6 +18,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final UserCredentialsMapper userMapper;
 
     public String register(AuthRequest request) {
 
@@ -30,6 +32,8 @@ public class AuthService {
         UserCredentials user = UserCredentials.builder()
                 .username(request.username())
                 .password(passwordEncoder.encode(request.password()))
+                .email(request.email())
+                .phone(request.phone())
                 .roles(role)
                 .build();
 
