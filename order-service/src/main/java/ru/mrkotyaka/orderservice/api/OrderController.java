@@ -21,11 +21,12 @@ public class OrderController {
 
     @PostMapping
     public OrderDto create(
-            @RequestBody CreateOrderRequestDto request
+            @RequestBody CreateOrderRequestDto request,
+            @RequestHeader("X-User-Id") Long authenticatedUserId
     ) {
         log.info("Processing the request in the flow: {}", Thread.currentThread());
-        log.debug("Creating order: request={}", request);
-        var saved = orderProcessor.create(request);
+        log.debug("Creating order: request={} for user `{}`", request, authenticatedUserId);
+        var saved = orderProcessor.create(request, authenticatedUserId);
         return orderMapper.toOrderDto(saved);
     }
 
@@ -37,7 +38,7 @@ public class OrderController {
         log.info("Retrieving order with id `{}` for user `{}`", id, authenticatedUserId);
         var found = orderProcessor.getOrderOrThrow(id);
 
-        if(!found.getId().equals(authenticatedUserId)){
+        if(!found.getCustomerId().equals(authenticatedUserId)){
             log.warn("User `{}` tried to access order `{}` belonging to user `{}`",
                     authenticatedUserId, id, found.getCustomerId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this order");
@@ -45,7 +46,7 @@ public class OrderController {
         return orderMapper.toOrderDto(found);
     }
 
-    @PostMapping("/{id}/pay")
+    @PostMapping("/pay/{id}")
     public OrderDto payOrder(
             @PathVariable Long id,
             @RequestBody OrderPaymentRequest request

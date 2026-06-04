@@ -36,8 +36,9 @@ public class OrderProcessor {
     @Value("${order-paid-topic}")
     private String orderPaidTopic;
 
-    public OrderEntity create(CreateOrderRequestDto request) {
+    public OrderEntity create(CreateOrderRequestDto request, Long authenticatedUserId) {
         var entity = orderMapper.toOrderEntity(request);
+        entity.setCustomerId(authenticatedUserId);
         calcPricingForOrder(entity);
         entity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         return orderRepository.save(entity);

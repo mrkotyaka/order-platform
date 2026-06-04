@@ -3,7 +3,7 @@ package ru.mrkotyaka.commonlibs.http.order;
 import java.util.Set;
 
 public record CreateOrderRequestDto(
-        Long customerId,
+//        Long customerId,
         String address,
         Set<OrderItemRequestDto> items
 ) {
