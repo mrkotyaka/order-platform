@@ -10,6 +10,9 @@ import ru.mrkotyaka.commonlibs.http.order.OrderDto;
 import ru.mrkotyaka.orderservice.domain.db.OrderEntityMapper;
 import ru.mrkotyaka.orderservice.domain.OrderProcessor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -44,6 +47,12 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this order");
         }
         return orderMapper.toOrderDto(found);
+    }
+
+    @GetMapping
+    public List<OrderDto> getAll(){
+        log.info("Retrieving all orders from the flow");
+        return orderProcessor.getAllOrders();
     }
 
     @PostMapping("/pay/{id}")

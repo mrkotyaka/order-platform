@@ -8,6 +8,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
+import ru.mrkotyaka.commonlibs.http.order.OrderDto;
 import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
@@ -22,6 +23,8 @@ import ru.mrkotyaka.orderservice.domain.db.OrderRepository;
 import ru.mrkotyaka.orderservice.external.PaymentHttpClient;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -49,6 +52,15 @@ public class OrderProcessor {
         return orderItemEntityOpt
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
+    }
+
+    public List<OrderDto> getAllOrders(){
+        List<OrderDto> allOrdersDTO = new ArrayList<>();
+        var allOrders = orderRepository.findAll();
+        for(var order : allOrders){
+            allOrdersDTO.add(orderMapper.toOrderDto(order));
+        }
+        return allOrdersDTO;
     }
 
 
