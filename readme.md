@@ -84,6 +84,13 @@ Authorization: Bearer токен, полученный при авторизац
 }
 ```
 
+**🔍 Найти заказ по id**
+```http 
+GET http://localhost:8080/api/orders/102
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
 **💳 Оплатить заказ по id**
 ```http 
 POST http://localhost:8080/api/orders/pay/102
@@ -96,13 +103,12 @@ Authorization: Bearer токен, полученный при авторизац
 }
 ```
 
-**🔍 Найти заказ по id**
+**🔍 Найти все товары**
 ```http 
-GET http://localhost:8080/api/orders/102
+GET http://localhost:8080/api/items
 
 Authorization: Bearer токен, полученный при авторизации
 ```
-
 
 **🔍 Найти всех клиентов**
 ```http 
@@ -131,7 +137,7 @@ Authorization: Bearer токен, полученный при авторизац
 - Messaging: Apache Kafka
 - Build: Gradle (Multi-module)
 
-## 🆘 Решение проблем
+## 🆘 Решение проблем (for memory)
 **Ошибка:** violates check constraint "orders_order_status_check"
 
 **Причина:** в Java добавлен новый статус в Enum, а в PostgreSQL осталось старое ограничение.
