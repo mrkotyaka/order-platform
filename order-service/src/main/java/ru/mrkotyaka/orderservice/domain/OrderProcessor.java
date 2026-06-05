@@ -54,10 +54,10 @@ public class OrderProcessor {
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
     }
 
-    public List<OrderDto> getAllOrders(){
+    public List<OrderDto> getAllOrders() {
         List<OrderDto> allOrdersDTO = new ArrayList<>();
         var allOrders = orderRepository.findAll();
-        for(var order : allOrders){
+        for (var order : allOrders) {
             allOrdersDTO.add(orderMapper.toOrderDto(order));
         }
         return allOrdersDTO;

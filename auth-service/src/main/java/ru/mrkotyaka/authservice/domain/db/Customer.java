@@ -4,14 +4,14 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import ru.mrkotyaka.commonlibs.http.auth.UserRoles;
+import ru.mrkotyaka.commonlibs.http.auth.CustomerRoles;
 
 @Entity
-@Table(name = "user_credentials")
+@Table(name = "customers")
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
 @Builder
-public class UserCredentials {
+public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -33,5 +33,5 @@ public class UserCredentials {
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    private UserRoles roles;
+    private CustomerRoles roles;
 }

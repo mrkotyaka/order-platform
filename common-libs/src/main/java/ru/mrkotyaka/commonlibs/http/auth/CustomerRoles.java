@@ -1,6 +1,6 @@
 package ru.mrkotyaka.commonlibs.http.auth;
 
-public enum UserRoles {
+public enum CustomerRoles {
     ROLE_ADMIN,
     ROLE_USER
 }
