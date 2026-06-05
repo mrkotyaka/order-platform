@@ -78,8 +78,8 @@ Authorization: Bearer токен, полученный при авторизац
 {
   "address": "mira, 12",
   "items": [
-    { "itemId": 1, "quantity": 2, "name": "ice cream" },
-    { "itemId": 2, "quantity": 2, "name": "bread" }
+    { "quantity": 2, "name": "ice cream" },
+    { "quantity": 2, "name": "bread" }
   ]
 }
 ```
@@ -150,19 +150,19 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ couriers (id, name, email, phone)
 - ✔️ impl couriers
 - ✔️ assign free courier for an order
+- ✔️ add multithreading
 - ✔️ authentification-service
 - ✔️ customers (id, name, email, phone, role) - implements like user_credentials
-- close the direct method call. Stay only 8080
+- ✔️ items (id, name, price)
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
-- items (id, name, price)
-- implements Liquibase or Flyway (spring.jpa.hibernate.ddl-auto=validate)
 - in order_items rename courier_name to courier_id. implements logic
 - in orders rename address to delivery_address. implements logic
+- implements Liquibase or Flyway (spring.jpa.hibernate.ddl-auto=validate)
 - make default for delivery_address - fill by default from customers.address if null
 - impl items
 - notification-service - check by null email
 - get order - check customer login (id)
 - deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id 
-- add multithreading
+- close the direct method call. Stay only 8080 in docker in the end

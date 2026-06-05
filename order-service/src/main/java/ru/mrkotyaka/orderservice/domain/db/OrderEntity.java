@@ -26,7 +26,7 @@ public class OrderEntity {
     @Column(name = "customer_id")
     private Long customerId;
 
-    @Column(name = "address")
+    @Column(name = "address", nullable = false)
     private String address;
 
     @Column(name = "total_amount", precision = 19, scale = 2)

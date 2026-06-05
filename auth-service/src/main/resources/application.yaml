@@ -20,5 +20,5 @@ spring:
         format_sql: true
 
 jwt:
-  secret: ${JWT_SECRET:your_default_super_secret_key_32_bytes_long_!!!}
+  secret: ${JWT_SECRET:PO50Kb9HTXs0CZfgE1c7HpJKFKkYQW6ybn3KDRBM5qO}
   expiration: 86400000 # Время жизни токена в миллисекундах (24 часа)

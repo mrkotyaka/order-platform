@@ -1,7 +1,7 @@
 package ru.mrkotyaka.commonlibs.http.order;
 
 public record OrderItemRequestDto(
-        Long itemId,
+//        Long itemId,
         Integer quantity,
         String name
 ) {

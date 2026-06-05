@@ -1,4 +1,4 @@
-package ru.mrkotyaka.orderservice.api;
+package ru.mrkotyaka.commonlibs.http.order;
 
 import ru.mrkotyaka.commonlibs.http.payment.PaymentMethod;
 

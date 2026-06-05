@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
 import ru.mrkotyaka.commonlibs.http.order.OrderDto;
+import ru.mrkotyaka.commonlibs.http.order.OrderPaymentRequest;
 import ru.mrkotyaka.orderservice.domain.OrderProcessor;
 import ru.mrkotyaka.orderservice.domain.db.OrderEntityMapper;
 

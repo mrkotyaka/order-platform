@@ -1,15 +1,13 @@
 package ru.mrkotyaka.orderservice.domain.db;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@ToString
 @Setter
 @Getter
 @NoArgsConstructor
@@ -26,17 +24,16 @@ public class OrderItemEntity {
     @JoinColumn(name = "order_id")
     private OrderEntity order;
 
-    @Column(name = "item_id")
-    private Long itemId;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "item_name")
+    @Column(name = "item_name")
+    private String name;
 
     @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "item_name")
-    private String name;
-
     @Column(name = "price_at_purchase")
-    private BigDecimal priceAtPurchase;
+    private BigDecimal price;
 
 
     @Override

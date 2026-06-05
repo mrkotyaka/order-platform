@@ -7,25 +7,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.mrkotyaka.commonlibs.http.item.ItemDTO;
 import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
 import ru.mrkotyaka.commonlibs.http.order.OrderDto;
+import ru.mrkotyaka.commonlibs.http.order.OrderPaymentRequest;
 import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
 import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
 import ru.mrkotyaka.commonlibs.kafka.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.OrderPaidEvent;
-import ru.mrkotyaka.orderservice.api.OrderPaymentRequest;
-import ru.mrkotyaka.orderservice.domain.db.OrderEntity;
-import ru.mrkotyaka.orderservice.domain.db.OrderEntityMapper;
-import ru.mrkotyaka.orderservice.domain.db.OrderItemEntity;
-import ru.mrkotyaka.orderservice.domain.db.OrderRepository;
+import ru.mrkotyaka.orderservice.domain.db.*;
 import ru.mrkotyaka.orderservice.external.PaymentHttpClient;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +30,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class OrderProcessor {
     private final OrderRepository orderRepository;
     private final OrderEntityMapper orderMapper;
+    private final ItemRepository itemRepository;
+    private final ItemEntityMapper itemMapper;
     private final PaymentHttpClient paymentHttpClient;
     private final KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate;
 
@@ -67,11 +66,14 @@ public class OrderProcessor {
     private void calcPricingForOrder(OrderEntity orderEntity) {
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (OrderItemEntity item : orderEntity.getItems()) {
-            var randomPrice = ThreadLocalRandom.current().nextDouble(100, 5000);
-            item.setPriceAtPurchase(BigDecimal.valueOf(randomPrice));
-
-            totalPrice = item.getPriceAtPurchase().multiply(BigDecimal.valueOf(item.getQuantity())).add(totalPrice);
-
+            if (!itemRepository.existsByName(item.getName())) {
+                log.info("Item with name `{}` not found. Please use items list", item.getName());
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            } else {
+                var itemPrice = itemRepository.findPriceByName(item.getName());
+                item.setPrice(BigDecimal.valueOf(itemPrice));
+                totalPrice = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())).add(totalPrice);
+            }
         }
         orderEntity.setTotalAmount(totalPrice);
     }
@@ -142,5 +144,14 @@ public class OrderProcessor {
         } else {
             log.error("Trying to assign delivery but order have incorrect state: state={}", order.getId());
         }
+    }
+
+    public List<ItemDTO> getAllItems() {
+        List<ItemDTO> allItemDTO = new ArrayList<>();
+        var allItems = itemRepository.findAll();
+        for (var item : allItems) {
+            allItemDTO.add(itemMapper.toItemDto(item));
+        }
+        return allItemDTO;
     }
 }
