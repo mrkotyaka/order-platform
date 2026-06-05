@@ -4,6 +4,8 @@
 
 ## 🏗 Архитектура и Модули
 
+- **gateway-service** — (:8080) AuthenticationFilter и application.yaml с настройкой маршрутизации.
+- **auth-service** — (:8081) регистрация и авторизация пользователя.
 - **common-libs** — Общие DTO, события (Events) и перечисления (Enums).
 - **order-service** (:8087) — Оркестратор заказов. Создаёт записи и меняет статусы.
 - **payment-service** (:8088) — Обработка транзакций.
@@ -13,11 +15,13 @@
 
 Сервисы общаются асинхронно. Основная цепочка событий:
 
+1. **Gateway Service** предоставляет единое окна для всех вызовов.
+1. **Auth Service** регистрирует и авторизует пользователя в качестве клиента.
 1. **Order Service** создаёт заказ и публикует событие `order-created`.
-2. **Payment Service** слушает `order-created`, списывает средства и публикует `payment-completed`.
-3. **Order Service** меняет статус заказа на `PAID` и публикует `order-paid`.
-4. **Delivery Service** ловит `order-paid`, назначает курьера и публикует `delivery-assigned`.
-5. **Order Service** обновляет финальный статус.
+1. **Payment Service** слушает `order-created`, списывает средства и публикует `payment-completed`.
+1. **Order Service** меняет статус заказа на `PAID` и публикует `order-paid`.
+1. **Delivery Service** ловит `order-paid`, назначает курьера и публикует `delivery-assigned`.
+1. **Order Service** обновляет финальный статус.
 
 ### Схема топиков и сервисов
 
