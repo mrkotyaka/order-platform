@@ -153,15 +153,13 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ add multithreading
 - ✔️ authentification-service
 - ✔️ customers (id, name, email, phone, role) - implements like user_credentials
-- ✔️ items (id, name, price)
+- ✔️ impl items (id, name, price)
+- get order - check customer login (id)
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
+- notification-service - check by null email
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
 - in order_items rename courier_name to courier_id. implements logic
 - implements Liquibase or Flyway (spring.jpa.hibernate.ddl-auto=validate)
-- make default for delivery_address - fill by default from customers.address if null
-- impl items
-- notification-service - check by null email
-- get order - check customer login (id)
 - deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id 
 - close the direct method call. Stay only 8080 in docker in the end

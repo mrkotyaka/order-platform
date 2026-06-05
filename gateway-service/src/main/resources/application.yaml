@@ -14,13 +14,21 @@ spring:
         - id: auth-service
           uri: http://localhost:8081
           predicates:
-            - Path=/api/auth/** #, /api/customers/**
+            - Path=/api/auth/**
+
+        # 1.1 CUSTOMERS (auth-service)
+        - id: customers-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/customers/**
+          filters:
+            - AuthenticationFilter
 
         # 2. ORDER SERVICE
         - id: order-service
           uri: http://localhost:8087
           predicates:
-            - Path=/api/orders/**
+            - Path=/api/orders/**, /api/items/**
           filters:
             - AuthenticationFilter
 
