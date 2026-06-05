@@ -40,14 +40,42 @@
 ## 🛠 REST API
 ### Order Service (:8087)
 
-**🟢 Создать заказ**
+**🟢 Регистрация**
 
 ```http 
-POST http://localhost:8087/api/orderss
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
 ```
 ```JSON
 {
-  "customerId": 2,
+  "username": "логин",
+  "password": "пароль"
+}
+```
+
+**🟢 Логин**
+
+```http 
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+```
+```JSON
+{
+  "username": "логин",
+  "password": "пароль"
+}
+```
+
+**🟢 Создать заказ**
+
+```http 
+POST http://localhost:8080/api/orders
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+```JSON
+{
   "address": "mira, 12",
   "items": [
     { "itemId": 1, "quantity": 2, "name": "ice cream" },
@@ -55,19 +83,48 @@ POST http://localhost:8087/api/orderss
   ]
 }
 ```
-**🔵 Найти заказ**
+
+**💳 Оплатить заказ по id**
 ```http 
-GET /api/orders/2
-```
-**💳 Оплатить заказ**
-```http 
-POST /api/orders/2/pay
+POST http://localhost:8080/api/orders/pay/102
+
+Authorization: Bearer токен, полученный при авторизации
 ```
 ```JSON
 {
    "paymentMethod": "CARD"
 }
 ```
+
+**🔍 Найти заказ по id**
+```http 
+GET http://localhost:8080/api/orders/102
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+
+**🔍 Найти всех клиентов**
+```http 
+GET http://localhost:8080/api/customers
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🔍 Найти все заказы**
+```http 
+GET http://localhost:8080/api/orders
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🔍 Найти всех свободных курьеров**
+```http 
+GET http://localhost:8080/api/couriers
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
 ## ⚙️ Технологии
 - Runtime: Java 21, Spring Boot 3.5.7
 - Data: Spring Data JPA, PostgreSQL, Hibernate 6 
@@ -96,7 +153,6 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ authentification-service
 - ✔️ customers (id, name, email, phone, role) - implements like user_credentials
 - close the direct method call. Stay only 8080
-- change user on customer or add it
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
