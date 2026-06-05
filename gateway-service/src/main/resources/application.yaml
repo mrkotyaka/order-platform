@@ -14,9 +14,9 @@ spring:
         - id: auth-service
           uri: http://localhost:8081
           predicates:
-            - Path=/api/auth/**
+            - Path=/api/auth/**, /api/customers/**
 
-        # 2. ORDER SERVICE (Проверь тут дефис!)
+        # 2. ORDER SERVICE
         - id: order-service
           uri: http://localhost:8087
           predicates:
@@ -41,4 +41,4 @@ spring:
             - AuthenticationFilter
 
 jwt:
-  secret: ${JWT_SECRET:your_default_super_secret_key_32_bytes_long_!!!}
+  secret: ${JWT_SECRET:PO50Kb9HTXs0CZfgE1c7HpJKFKkYQW6ybn3KDRBM5qO}
