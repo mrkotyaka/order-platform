@@ -158,7 +158,6 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
 - in order_items rename courier_name to courier_id. implements logic
-- in orders rename address to delivery_address. implements logic
 - implements Liquibase or Flyway (spring.jpa.hibernate.ddl-auto=validate)
 - make default for delivery_address - fill by default from customers.address if null
 - impl items

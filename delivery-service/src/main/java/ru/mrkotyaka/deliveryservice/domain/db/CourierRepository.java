@@ -1,4 +1,4 @@
-package ru.mrkotyaka.deliveryservice.domain;
+package ru.mrkotyaka.deliveryservice.domain.db;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,13 +13,13 @@ import java.util.Optional;
 public interface CourierRepository extends JpaRepository<CourierEntity, Long> {
 
     @Query(value = """
-            SELECT c.* FROM couriers c
+            SELECT DISTINCT c.* FROM couriers c
             LEFT JOIN deliveries d ON c.id = d.courier_id
             WHERE d.id IS NULL
             OR (d.delivery_datetime + (d.eta_minutes || ' minutes')::interval) < :now
             ORDER BY c.rating DESC
             """, nativeQuery = true)
-    Optional<List<CourierEntity>> findAllFree(@Param("now") LocalDateTime now);
+    List<CourierEntity> findAllFree(@Param("now") LocalDateTime now);
 
     @Query(value = """
             SELECT c.* FROM couriers c

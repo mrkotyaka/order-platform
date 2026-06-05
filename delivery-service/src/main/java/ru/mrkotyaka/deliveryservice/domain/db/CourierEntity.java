@@ -1,4 +1,4 @@
-package ru.mrkotyaka.deliveryservice.domain;
+package ru.mrkotyaka.deliveryservice.domain.db;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

@@ -1,16 +1,12 @@
-package ru.mrkotyaka.deliveryservice.domain;
+package ru.mrkotyaka.deliveryservice.domain.db;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Setter
 @Getter
