@@ -38,7 +38,7 @@
    ./gradlew clean build
    ```
 ## 🛠 REST API
-### Order Service (:8087)
+### Gateway (:8080)
 
 **🟢 Регистрация**
 
