@@ -8,8 +8,10 @@ import ru.mrkotyaka.commonlibs.http.auth.CustomerRoles;
 
 @Entity
 @Table(name = "customers")
-@Getter @Setter
-@AllArgsConstructor @NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Customer {
 

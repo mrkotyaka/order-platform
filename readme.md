@@ -88,14 +88,14 @@ Authorization: Bearer токен, полученный при авторизац
 
 **🔍 Найти заказ по id**
 ```http 
-GET http://localhost:8080/api/orders/102
+GET http://localhost:8080/api/orders/{1}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
 
 **💳 Оплатить заказ по id**
 ```http 
-POST http://localhost:8080/api/orders/pay/102
+POST http://localhost:8080/api/orders/pay/{1}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
@@ -126,9 +126,30 @@ GET http://localhost:8080/api/orders
 Authorization: Bearer токен, полученный при авторизации
 ```
 
+**🔍 Найти все заказы, ожидающие оплаты**
+```http 
+GET http://localhost:8080/api/orders/pendingpayment
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
 **🔍 Найти всех свободных курьеров**
 ```http 
 GET http://localhost:8080/api/couriers
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🔍 Найти инфо по текущему клиенту**
+```http 
+GET http://localhost:8080/api/customers/whoami
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🔍 Найти инфо по id клиента**
+```http 
+GET http://localhost:8080/api/customers/{1}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
@@ -165,6 +186,7 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - get order - check customer login (id)
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
 - notification-service - check by null email
+- add into customers card boolean type of notice (sms, email)
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
 - in order_items rename courier_name to courier_id. implements logic

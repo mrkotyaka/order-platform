@@ -36,12 +36,13 @@ public class OrderController {
     @GetMapping("/{id}")
     public OrderDto getOne(
             @PathVariable Long id,
-            @RequestHeader("X-User-Id") Long authenticatedUserId
+            @RequestHeader("X-User-Id") Long authenticatedUserId,
+            @RequestHeader("X-User-Roles") String authenticatedUserRole
     ) {
         log.info("Retrieving order with id `{}` for user `{}`", id, authenticatedUserId);
         var found = orderProcessor.getOrderOrThrow(id);
 
-        if(!found.getCustomerId().equals(authenticatedUserId)){
+        if(!found.getCustomerId().equals(authenticatedUserId) && authenticatedUserRole.equals("ROLE_USER")){
             log.warn("User `{}` tried to access order `{}` belonging to user `{}`",
                     authenticatedUserId, id, found.getCustomerId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this order");
@@ -50,17 +51,38 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<OrderDto> getAll(){
+    public List<OrderDto> getAll(
+            @RequestHeader("X-User-Roles") String authenticatedUserRole){
         log.info("Retrieving all orders from the flow");
+        if(authenticatedUserRole.equals("ROLE_USER")){
+            log.warn("You are not is admin. Access denied to getting all orders");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to getting all orders");
+        }
         return orderProcessor.getAllOrders();
+    }
+
+    @GetMapping("/pendingpayment")
+    public List<OrderDto> getAllPending(
+            @RequestHeader("X-User-Roles") String authenticatedUserRole){
+        log.info("Retrieving all pending payment orders from the flow");
+        if(authenticatedUserRole.equals("ROLE_USER")){
+            log.warn("You are not is admin. Access denied to getting all pending payment orders");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to getting all pending payment orders");
+        }
+        return orderProcessor.getAllPendingPaymentOrders();
     }
 
     @PostMapping("/pay/{id}")
     public OrderDto payOrder(
             @PathVariable Long id,
-            @RequestBody OrderPaymentRequest request
+            @RequestBody OrderPaymentRequest request,
+            @RequestHeader("X-User-Roles") String authenticatedUserRole
     ) {
         log.debug("Paying order with id={}, request={}", id, request);
+        if(authenticatedUserRole.equals("ROLE_USER")){
+            log.warn("You are not is admin. Access denied to pay for this order");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to pay for this order");
+        }
         var entity = orderProcessor.processPayment(id, request);
         return orderMapper.toOrderDto(entity);
     }

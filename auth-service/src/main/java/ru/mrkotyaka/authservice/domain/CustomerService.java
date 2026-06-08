@@ -54,4 +54,8 @@ public class CustomerService {
         }
         return allCustomersDTO;
     }
+
+    public Customer getCustomerInfo(Long id) {
+        return customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
+    }
 }

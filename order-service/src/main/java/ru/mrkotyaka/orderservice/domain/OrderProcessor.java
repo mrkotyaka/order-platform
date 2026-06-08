@@ -62,6 +62,15 @@ public class OrderProcessor {
         return allOrdersDTO;
     }
 
+    public List<OrderDto> getAllPendingPaymentOrders() {
+        List<OrderDto> allOrdersDTO = new ArrayList<>();
+        var allOrders = orderRepository.findAllPendingPayment();
+        for (var order : allOrders) {
+            allOrdersDTO.add(orderMapper.toOrderDto(order));
+        }
+        return allOrdersDTO;
+    }
+
 
     private void calcPricingForOrder(OrderEntity orderEntity) {
         BigDecimal totalPrice = BigDecimal.ZERO;
