@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
+import ru.mrkotyaka.orderservice.domain.OrderStatusListener;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
@@ -17,6 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Table(name = "orders")
+@EntityListeners(OrderStatusListener.class)
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

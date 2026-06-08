@@ -128,20 +128,20 @@ public class OrderProcessor {
 
         if(status.equals(OrderStatus.PAID)){
             sendOrderPaidEvent(entity, response);
-            sendNotification(
-                    entity.getCustomerId(),
-                    NotificationType.PAYMENT_SUCCESS,
-                    "Payment for the #%d order in the amount of %s ₽ was successful".formatted(
-                            entity.getId(),
-                            entity.getTotalAmount()
-                    )
-            );
-        } else {
-            sendNotification(
-                    entity.getCustomerId(),
-                    NotificationType.PAYMENT_FAILED,
-                    "Payment for the #%d order did not go through. Try again".formatted(entity.getId())
-            );
+//            sendNotification(
+//                    entity.getCustomerId(),
+//                    NotificationType.PAYMENT_SUCCESS,
+//                    "Payment for the #%d order in the amount of %s ₽ was successful".formatted(
+//                            entity.getId(),
+//                            entity.getTotalAmount()
+//                    )
+//            );
+//        } else {
+//            sendNotification(
+//                    entity.getCustomerId(),
+//                    NotificationType.PAYMENT_FAILED,
+//                    "Payment for the #%d order did not go through. Try again".formatted(entity.getId())
+//            );
         }
 
         return orderRepository.save(entity);
@@ -178,12 +178,12 @@ public class OrderProcessor {
         order.setEtaMinutes(event.etaMinutes());
         orderRepository.save(order);
 
-        sendNotification(
-                order.getCustomerId(),
-                NotificationType.COURIER_ASSIGNED,
-                "Courier %s assigned to order #%d. Expect in %d minutes".formatted(
-                        event.courierName(), order.getId(), event.etaMinutes())
-        );
+//        sendNotification(
+//                order.getCustomerId(),
+//                NotificationType.COURIER_ASSIGNED,
+//                "Courier %s assigned to order #%d. Expect in %d minutes".formatted(
+//                        event.courierName(), order.getId(), event.etaMinutes())
+//        );
 
         log.info("Order delivery assigned processed: orderId={}", order.getId());
     }
