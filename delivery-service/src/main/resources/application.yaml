@@ -19,3 +19,4 @@ server:
 
 order-paid-topic: order.events
 delivery-assigned-topic: delivery.events
+notification-topic: notifications

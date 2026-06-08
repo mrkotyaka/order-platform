@@ -16,28 +16,50 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import ru.mrkotyaka.commonlibs.kafka.DeliveryAssignedEvent;
-import ru.mrkotyaka.commonlibs.kafka.OrderPaidEvent;
+import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
+import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
+import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
 
 import java.util.Map;
 
 @Configuration
 public class KafkaConfiguration {
 
+    // 1. Общая фабрика для продюсеров
     @Bean
-    DefaultKafkaProducerFactory<Long, OrderPaidEvent> orderPaidEventProducerFactory(KafkaProperties properties) {
-        Map<String, Object> producerProperties = properties.buildProducerProperties(null);
-        producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
-        producerProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        return new DefaultKafkaProducerFactory<>(producerProperties);
+    public DefaultKafkaProducerFactory<Long, Object> producerFactory(KafkaProperties properties) {
+        Map<String, Object> props = properties.buildProducerProperties(null);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(props);
     }
 
+    // 2. Шаблон для OrderPaidEvent
     @Bean
-    KafkaTemplate<Long, OrderPaidEvent> orderPaidEventKafkaTemplate(
-            DefaultKafkaProducerFactory<Long, OrderPaidEvent> orderPaidEventProducerFactory
-    ) {
-        return new KafkaTemplate<>(orderPaidEventProducerFactory);
+    public KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate(DefaultKafkaProducerFactory<Long, Object> pf) {
+        return new KafkaTemplate(pf);
     }
+
+    // 3. Шаблон для NotificationEvent
+    @Bean
+    public KafkaTemplate<Long, NotificationEvent> notificationKafkaTemplate(DefaultKafkaProducerFactory<Long, Object> pf) {
+        return new KafkaTemplate(pf);
+    }
+
+//    @Bean
+//    DefaultKafkaProducerFactory<Long, OrderPaidEvent> orderPaidEventProducerFactory(KafkaProperties properties) {
+//        Map<String, Object> producerProperties = properties.buildProducerProperties(null);
+//        producerProperties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
+//        producerProperties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+//        return new DefaultKafkaProducerFactory<>(producerProperties);
+//    }
+
+//    @Bean
+//    KafkaTemplate<Long, OrderPaidEvent> orderPaidEventKafkaTemplate(
+//            DefaultKafkaProducerFactory<Long, OrderPaidEvent> orderPaidEventProducerFactory
+//    ) {
+//        return new KafkaTemplate<>(orderPaidEventProducerFactory);
+//    }
 
     @Bean
     public ConsumerFactory<Long, DeliveryAssignedEvent> deliveryAssignedEventConsumerFactory(KafkaProperties kafkaProperties) {

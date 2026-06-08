@@ -43,6 +43,11 @@ services:
       retries: 5
     labels:
         amplicode.image: confluent/kafka
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025" # SMTP порт для отправки
+      - "8025:8025" # UI порт для просмотра (http://localhost:8025)
 
 volumes:
   postgres_data:

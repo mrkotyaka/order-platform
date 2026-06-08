@@ -9,14 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import ru.mrkotyaka.commonlibs.kafka.DeliveryAssignedEvent;
-import ru.mrkotyaka.commonlibs.kafka.OrderPaidEvent;
+import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
+import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
+import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
 
 import java.util.Map;
 
@@ -54,4 +52,16 @@ public class KafkaConfiguration {
         factory.setBatchListener(false);
         return factory;
     }
+
+//    // Шаблон для событий оплаты
+//    @Bean
+//    public KafkaTemplate<Long, OrderPaidEvent> orderPaidKafkaTemplate(ProducerFactory<Long, OrderPaidEvent> pf) {
+//        return new KafkaTemplate<>(pf);
+//    }
+//
+//    // Шаблон для уведомлений
+//    @Bean
+//    public KafkaTemplate<Long, NotificationEvent> notificationKafkaTemplate(ProducerFactory<Long, NotificationEvent> pf) {
+//        return new KafkaTemplate<>(pf);
+//    }
 }

@@ -7,3 +7,4 @@ include(":delivery-service")
 
 include("gateway-service")
 include("auth-service")
+include("notification-service")

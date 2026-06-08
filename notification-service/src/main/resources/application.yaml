@@ -1,0 +1,44 @@
+server:
+  port: 8090
+
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+  application:
+    name: notification-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "ru.mrkotyaka.commonlibs.*"
+
+  mail:
+    host: localhost
+    port: 1025
+    username: user
+    password: password
+    properties:
+      mail:
+        smtp:
+          auth: false # У MailHog по умолчанию нет авторизации
+          starttls:
+            enable: false
+
+#    host: smtp.gmail.com
+#    port: 587
+#    username: ${MAIL_USERNAME}
+#    password: ${MAIL_PASSWORD}
+#    properties:
+#      mail.smtp.auth: true
+#      mail.smtp.starttls.enable: true
+
+notification-topic: notifications
+auth-service:
+  url: http://localhost:8081

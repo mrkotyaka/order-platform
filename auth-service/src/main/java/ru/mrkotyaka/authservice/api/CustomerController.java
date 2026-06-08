@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.authservice.domain.CustomerService;
 import ru.mrkotyaka.authservice.domain.db.CustomerMapper;
 import ru.mrkotyaka.commonlibs.http.auth.CustomerResponseDTO;
+import ru.mrkotyaka.commonlibs.kafka.notification.CustomerNotificationDto;
 
 import java.util.List;
 
@@ -60,5 +61,17 @@ public class CustomerController {
         }
 
         return customerMapper.toUserDto(customer);
+    }
+
+    @GetMapping("/internal/{id}")
+    public CustomerNotificationDto getCustomerForNotification(@PathVariable Long id) {
+        var customer = customerService.getCustomerInfo(id);
+        return new CustomerNotificationDto(
+                customer.getId(),
+                customer.getEmail(),
+                customer.getPhone(),
+                null, // pushToken пока null
+                customer.getNotificationPreference()
+        );
     }
 }

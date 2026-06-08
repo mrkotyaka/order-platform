@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import ru.mrkotyaka.commonlibs.http.auth.CustomerRoles;
+import ru.mrkotyaka.commonlibs.http.notification.NotificationPreference;
 
 @Entity
 @Table(name = "customers")
@@ -43,4 +44,8 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     @Column(name = "roles")
     private CustomerRoles roles;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_preference")
+    private NotificationPreference notificationPreference;
 }

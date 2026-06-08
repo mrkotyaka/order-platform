@@ -8,15 +8,13 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.http.delivery.CourierDTO;
-import ru.mrkotyaka.commonlibs.http.item.ItemDTO;
-import ru.mrkotyaka.commonlibs.kafka.DeliveryAssignedEvent;
-import ru.mrkotyaka.commonlibs.kafka.OrderPaidEvent;
+import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
+import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.deliveryservice.domain.db.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j

@@ -26,6 +26,4 @@ public class PaymentController {
 
         return paymentService.makePayment(request);
     }
-
-
 }

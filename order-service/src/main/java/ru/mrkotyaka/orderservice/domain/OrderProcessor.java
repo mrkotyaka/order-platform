@@ -8,6 +8,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.http.item.ItemDTO;
+import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
+import ru.mrkotyaka.commonlibs.http.notification.NotificationType;
 import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
 import ru.mrkotyaka.commonlibs.http.order.OrderDto;
 import ru.mrkotyaka.commonlibs.http.order.OrderPaymentRequest;
@@ -15,8 +17,8 @@ import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
 import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
-import ru.mrkotyaka.commonlibs.kafka.DeliveryAssignedEvent;
-import ru.mrkotyaka.commonlibs.kafka.OrderPaidEvent;
+import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
+import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.orderservice.domain.db.*;
 import ru.mrkotyaka.orderservice.external.PaymentHttpClient;
 
@@ -34,20 +36,36 @@ public class OrderProcessor {
     private final ItemEntityMapper itemMapper;
     private final PaymentHttpClient paymentHttpClient;
     private final KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate;
+    private final KafkaTemplate<Long, NotificationEvent> notificationKafkaTemplate;
 
     @Value("${order-paid-topic}")
     private String orderPaidTopic;
+
+    @Value("${notification-topic}")
+    private String notificationTopic;
 
     public OrderEntity create(CreateOrderRequestDto request, Long authenticatedUserId) {
         var entity = orderMapper.toOrderEntity(request);
         entity.setCustomerId(authenticatedUserId);
         calcPricingForOrder(entity);
         entity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
-        return orderRepository.save(entity);
+        var saved = orderRepository.save(entity);
+
+        sendNotification(
+                saved.getCustomerId(),
+                NotificationType.ORDER_CREATED,
+                "Your #%d order has been successfully created in the amount of %s ₽".formatted(
+                        saved.getId(),
+                        saved.getTotalAmount()
+                )
+        );
+
+        return saved;
     }
 
     public OrderEntity getOrderOrThrow(Long id) {
-        var orderItemEntityOpt = orderRepository.findById(id);
+//        var orderItemEntityOpt = orderRepository.findById(id);
+        var orderItemEntityOpt = orderRepository.findWithItemsById(id);
         return orderItemEntityOpt
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
@@ -107,10 +125,25 @@ public class OrderProcessor {
                 : OrderStatus.PAYMENT_FAILED;
 
         entity.setOrderStatus(status);
-        sendOrderPaidEvent(entity, response);
-        if (status.equals(OrderStatus.PAID)) {
+
+        if(status.equals(OrderStatus.PAID)){
             sendOrderPaidEvent(entity, response);
+            sendNotification(
+                    entity.getCustomerId(),
+                    NotificationType.PAYMENT_SUCCESS,
+                    "Payment for the #%d order in the amount of %s ₽ was successful".formatted(
+                            entity.getId(),
+                            entity.getTotalAmount()
+                    )
+            );
+        } else {
+            sendNotification(
+                    entity.getCustomerId(),
+                    NotificationType.PAYMENT_FAILED,
+                    "Payment for the #%d order did not go through. Try again".formatted(entity.getId())
+            );
         }
+
         return orderRepository.save(entity);
     }
 
@@ -144,6 +177,14 @@ public class OrderProcessor {
         order.setCourierName(event.courierName());
         order.setEtaMinutes(event.etaMinutes());
         orderRepository.save(order);
+
+        sendNotification(
+                order.getCustomerId(),
+                NotificationType.COURIER_ASSIGNED,
+                "Courier %s assigned to order #%d. Expect in %d minutes".formatted(
+                        event.courierName(), order.getId(), event.etaMinutes())
+        );
+
         log.info("Order delivery assigned processed: orderId={}", order.getId());
     }
 
@@ -162,5 +203,15 @@ public class OrderProcessor {
             allItemDTO.add(itemMapper.toItemDto(item));
         }
         return allItemDTO;
+    }
+
+    public void sendNotification(Long customerId, NotificationType notificationType, String payload) {
+        notificationKafkaTemplate.send(
+                notificationTopic,
+                customerId,
+                new NotificationEvent(customerId, notificationType, payload)
+        ).thenAccept(result ->
+                log.info("Notification event sent: customerId={}, type={}", customerId, notificationType)
+        );
     }
 }

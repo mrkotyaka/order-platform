@@ -10,6 +10,7 @@
 - **order-service** (:8087) — Оркестратор заказов. Создаёт записи и меняет статусы.
 - **payment-service** (:8088) — Обработка транзакций.
 - **delivery-service** (:8089) — Назначение курьеров и отслеживание доставки.
+- **notification-service** (:8090) — Отправка уведомлений.
 
 ## 🔄 Взаимодействие через Kafka
 
@@ -20,6 +21,7 @@
 1. **Order Service** меняет статус заказа на `PAID` и публикует `order-paid`.
 1. **Delivery Service** ловит `order-paid`, назначает курьера и публикует `delivery-assigned`.
 1. **Order Service** обновляет финальный статус.
+1. **Notification Service** по каждому событию отправляет уведомление клиенту.
 
 ### Схема топиков и сервисов
 
@@ -185,11 +187,13 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ customers (id, name, email, phone, role) - implements like user_credentials
 - ✔️ impl items (id, name, price)
 - ✔️ get order - check customer login (id)
+- ✔️ notification-service
+- ✔️ add into customers card boolean type of notice (sms, email, push)
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
 - notification-service - check by null email
-- add into customers card boolean type of notice (sms, email)
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
+- add feedback
 - in order_items rename courier_name to courier_id. implements logic
 - implements Liquibase or Flyway (spring.jpa.hibernate.ddl-auto=validate)
 - deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id 

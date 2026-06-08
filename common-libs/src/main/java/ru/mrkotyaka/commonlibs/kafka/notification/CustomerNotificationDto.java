@@ -1,13 +1,12 @@
-package ru.mrkotyaka.commonlibs.http.auth;
+package ru.mrkotyaka.commonlibs.kafka.notification;
 
 import ru.mrkotyaka.commonlibs.http.notification.NotificationPreference;
 
-public record CustomerResponseDTO(
+public record CustomerNotificationDto(
         Long id,
-        String username,
         String email,
         String phone,
-        String roles,
+        String pushToken,
         NotificationPreference notificationPreference
 ) {
 }

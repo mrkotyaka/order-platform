@@ -1,4 +1,4 @@
-package ru.mrkotyaka.commonlibs.kafka;
+package ru.mrkotyaka.commonlibs.kafka.delivery;
 
 import lombok.Builder;
 import ru.mrkotyaka.commonlibs.http.payment.PaymentMethod;

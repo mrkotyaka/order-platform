@@ -1,4 +1,7 @@
 spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
   application:
     name: order-service
   datasource:
@@ -10,6 +13,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
   kafka:
     consumer:
       group-id: order-service-group
@@ -22,3 +26,4 @@ payment-service:
 
 order-paid-topic: order.events
 delivery-assigned-topic: delivery.events
+notification-topic: notifications
