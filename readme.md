@@ -181,9 +181,10 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ assign free courier for an order
 - ✔️ add multithreading
 - ✔️ authentification-service
+- ✔️ gateway-service
 - ✔️ customers (id, name, email, phone, role) - implements like user_credentials
 - ✔️ impl items (id, name, price)
-- get order - check customer login (id)
+- ✔️ get order - check customer login (id)
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
 - notification-service - check by null email
 - add into customers card boolean type of notice (sms, email)
