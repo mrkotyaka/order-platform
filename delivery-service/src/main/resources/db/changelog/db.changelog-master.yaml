@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changesets/001-create-deliveries-table.sql
+  - include:
+      file: db/changelog/data/v1-insert-test-couriers.sql
+      context: dev # Данные вставятся только если запущен контекст "test"

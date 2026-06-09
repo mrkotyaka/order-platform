@@ -35,6 +35,8 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
+    implementation("org.liquibase:liquibase-core")
 }
 
 tasks.withType<Test> {

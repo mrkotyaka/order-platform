@@ -1,16 +1,8 @@
 plugins {
-//    java
     id("org.springframework.boot") //version "3.5.7"
-//    id("io.spring.dependency-management") version "1.1.7"
 }
 
 version = "1.0.0"
-
-//java {
-//    toolchain {
-//        languageVersion = JavaLanguageVersion.of(21)
-//    }
-//}
 
 dependencies {
     implementation(project(":common-libs"))
@@ -32,6 +24,8 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
+    implementation("org.liquibase:liquibase-core")
 }
 
 tasks.withType<Test> {

@@ -8,8 +8,12 @@ spring:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_PAYMENTS:payments}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: test
   threads:
     virtual:
       enabled: true
@@ -17,4 +21,4 @@ spring:
 server:
   port: 8088
 
-notification-topic: notifications.events
+#notification-topic: notifications.events
