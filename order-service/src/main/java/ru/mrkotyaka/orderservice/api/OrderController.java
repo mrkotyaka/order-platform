@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
-import ru.mrkotyaka.commonlibs.http.order.OrderDto;
-import ru.mrkotyaka.commonlibs.http.order.OrderPaymentRequest;
+import ru.mrkotyaka.commonlibs.http.order.CreateOrderRqDto;
+import ru.mrkotyaka.commonlibs.http.order.OrderRsDto;
+import ru.mrkotyaka.commonlibs.http.order.OrderPaymentRqDto;
 import ru.mrkotyaka.orderservice.domain.OrderProcessor;
 import ru.mrkotyaka.orderservice.domain.db.OrderEntityMapper;
 
@@ -23,8 +23,8 @@ public class OrderController {
     private final OrderEntityMapper orderMapper;
 
     @PostMapping
-    public OrderDto create(
-            @RequestBody CreateOrderRequestDto request,
+    public OrderRsDto create(
+            @RequestBody CreateOrderRqDto request,
             @RequestHeader("X-User-Id") Long authenticatedUserId
     ) {
         log.info("Processing the request in the flow: {}", Thread.currentThread());
@@ -34,7 +34,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public OrderDto getOne(
+    public OrderRsDto getOne(
             @PathVariable Long id,
             @RequestHeader("X-User-Id") Long authenticatedUserId,
             @RequestHeader("X-User-Roles") String authenticatedUserRole
@@ -51,7 +51,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<OrderDto> getAll(
+    public List<OrderRsDto> getAll(
             @RequestHeader("X-User-Roles") String authenticatedUserRole) {
         log.info("Retrieving all orders from the flow");
         if (authenticatedUserRole.equals("ROLE_USER")) {
@@ -62,7 +62,7 @@ public class OrderController {
     }
 
     @GetMapping("/pendingpayment")
-    public List<OrderDto> getAllPending(
+    public List<OrderRsDto> getAllPending(
             @RequestHeader("X-User-Roles") String authenticatedUserRole) {
         log.info("Retrieving all pending payment orders from the flow");
         if (authenticatedUserRole.equals("ROLE_USER")) {
@@ -73,9 +73,9 @@ public class OrderController {
     }
 
     @PostMapping("/pay/{id}")
-    public OrderDto payOrder(
+    public OrderRsDto payOrder(
             @PathVariable Long id,
-            @RequestBody OrderPaymentRequest request,
+            @RequestBody OrderPaymentRqDto request,
             @RequestHeader("X-User-Roles") String authenticatedUserRole
     ) {
         log.debug("Paying order with id={}, request={}", id, request);

@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
+import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRqDto;
+import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRsDto;
 import ru.mrkotyaka.paymentservice.domain.PaymentService;
 
 @Slf4j
@@ -19,8 +19,8 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public CreatePaymentResponseDto createPayment(
-            @RequestBody CreatePaymentRequestDto request
+    public CreatePaymentRsDto createPayment(
+            @RequestBody CreatePaymentRqDto request
     ) {
         log.info("Received request: paymentRequest={}", request);
 

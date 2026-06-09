@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.mrkotyaka.authservice.domain.CustomerService;
-import ru.mrkotyaka.commonlibs.http.auth.AuthRequestDTO;
-import ru.mrkotyaka.commonlibs.http.auth.AuthResponse;
+import ru.mrkotyaka.commonlibs.http.auth.AuthRqDto;
+import ru.mrkotyaka.commonlibs.http.auth.AuthResponseDto;
 
 @Slf4j
 @RestController
@@ -17,16 +17,16 @@ public class CustomerAuthController {
     private final CustomerService customerService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AuthRequestDTO request) {
+    public ResponseEntity<String> register(@RequestBody AuthRqDto request) {
         return ResponseEntity.ok(customerService.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequestDTO request) {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody AuthRqDto request) {
         String token = customerService.login(request);
 
         log.info("Login was successful. Token: {}", token);
 
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponseDto(token));
     }
 }

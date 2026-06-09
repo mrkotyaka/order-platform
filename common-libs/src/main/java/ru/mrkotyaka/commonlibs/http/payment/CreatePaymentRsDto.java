@@ -1,13 +1,11 @@
 package ru.mrkotyaka.commonlibs.http.payment;
 
-import lombok.Builder;
-
 import java.math.BigDecimal;
 
-@Builder
-public record CreatePaymentRequestDto(
+public record CreatePaymentRsDto(
+        Long paymentId,
+        PaymentStatus paymentStatus,
         Long orderId,
         PaymentMethod paymentMethod,
-        BigDecimal amount
-) {
+        BigDecimal amount) {
 }

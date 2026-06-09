@@ -1,6 +1,6 @@
 package ru.mrkotyaka.commonlibs.http.item;
 
-public record ItemDTO(
+public record ItemRsDTO(
         String name,
         Double price
 ) {

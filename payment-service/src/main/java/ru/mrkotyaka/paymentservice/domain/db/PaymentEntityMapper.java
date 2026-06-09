@@ -1,16 +1,16 @@
 package ru.mrkotyaka.paymentservice.domain.db;
 
 import org.mapstruct.*;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
+import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRqDto;
+import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRsDto;
 
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         componentModel = MappingConstants.ComponentModel.SPRING)
 public interface PaymentEntityMapper {
 
-    PaymentEntity toEntity(CreatePaymentRequestDto request);
+    PaymentEntity toEntity(CreatePaymentRqDto request);
 
     @Mapping(source = "id", target = "paymentId")
-    CreatePaymentResponseDto toResponseDTO(PaymentEntity paymentEntity);
+    CreatePaymentRsDto toResponseDTO(PaymentEntity paymentEntity);
 }

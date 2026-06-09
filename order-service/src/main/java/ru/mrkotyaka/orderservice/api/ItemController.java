@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.http.item.ItemDTO;
+import ru.mrkotyaka.commonlibs.http.item.ItemRsDTO;
 import ru.mrkotyaka.orderservice.domain.OrderProcessor;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class ItemController {
     private final OrderProcessor orderProcessor;
 
     @GetMapping
-    public List<ItemDTO> getAllItems(
+    public List<ItemRsDTO> getAllItems(
             @RequestHeader("X-User-Roles") String authenticatedUserRole) {
         log.info("Retrieving all items from the flow");
         if(authenticatedUserRole.equals("ROLE_USER")){

@@ -3,13 +3,13 @@ package ru.mrkotyaka.authservice.domain.db;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
-import ru.mrkotyaka.commonlibs.http.auth.AuthRequestDTO;
-import ru.mrkotyaka.commonlibs.http.auth.CustomerResponseDTO;
+import ru.mrkotyaka.commonlibs.http.auth.AuthRqDto;
+import ru.mrkotyaka.commonlibs.http.auth.CustomerRsDto;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CustomerMapper {
 
-    Customer toCustomerEntity(AuthRequestDTO request);
+    Customer toCustomerEntity(AuthRqDto request);
 
-    CustomerResponseDTO toUserDto(Customer customer);
+    CustomerRsDto toUserDto(Customer customer);
 }

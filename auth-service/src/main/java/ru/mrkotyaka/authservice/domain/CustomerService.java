@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.mrkotyaka.authservice.domain.db.Customer;
 import ru.mrkotyaka.authservice.domain.db.CustomerMapper;
 import ru.mrkotyaka.authservice.domain.db.CustomerRepository;
-import ru.mrkotyaka.commonlibs.http.auth.AuthRequestDTO;
-import ru.mrkotyaka.commonlibs.http.auth.CustomerResponseDTO;
+import ru.mrkotyaka.commonlibs.http.auth.AuthRqDto;
+import ru.mrkotyaka.commonlibs.http.auth.CustomerRsDto;
 import ru.mrkotyaka.commonlibs.http.auth.CustomerRoles;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class CustomerService {
     private final JwtService jwtService;
     private final CustomerMapper customerMapper;
 
-    public String register(AuthRequestDTO request) {
+    public String register(AuthRqDto request) {
         Customer customer = Customer.builder()
                 .username(request.username())
                 .password(passwordEncoder.encode(request.password()))
@@ -37,7 +37,7 @@ public class CustomerService {
         return "Customer registered successfully";
     }
 
-    public String login(AuthRequestDTO request) {
+    public String login(AuthRqDto request) {
         Customer customer = customerRepository.findByUsername(request.username())
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
@@ -48,8 +48,8 @@ public class CustomerService {
         return jwtService.generateToken(customer);
     }
 
-    public List<CustomerResponseDTO> getAllCustomers() {
-        List<CustomerResponseDTO> allCustomersDTO = new ArrayList<>();
+    public List<CustomerRsDto> getAllCustomers() {
+        List<CustomerRsDto> allCustomersDTO = new ArrayList<>();
         var allCustomers = customerRepository.findAll();
         for (var customer : allCustomers) {
             allCustomersDTO.add(customerMapper.toUserDto(customer));

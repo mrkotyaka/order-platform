@@ -33,6 +33,11 @@ public class NotificationProcessor {
                 return;
             }
 
+            if (customer.email() == null) {
+                log.error("The client's email is not filled.");
+                return;
+            }
+
             switch (customer.notificationPreference()) {
                 case EMAIL -> emailSender.send(customer.email(), event.payload());
                 case SMS -> smsSender.send(customer.phone(), event.payload());

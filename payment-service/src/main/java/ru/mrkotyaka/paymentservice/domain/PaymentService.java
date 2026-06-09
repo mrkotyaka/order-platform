@@ -3,10 +3,7 @@ package ru.mrkotyaka.paymentservice.domain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
-import ru.mrkotyaka.commonlibs.http.payment.PaymentMethod;
-import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
+import ru.mrkotyaka.commonlibs.http.payment.*;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentEntityMapper;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentRepository;
 
@@ -18,7 +15,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentEntityMapper paymentMapper;
 
-    public CreatePaymentResponseDto makePayment(CreatePaymentRequestDto request) {
+    public CreatePaymentRsDto makePayment(CreatePaymentRqDto request) {
 
         var found = paymentRepository.findByOrderId(request.orderId());
         if (found.isPresent()) {

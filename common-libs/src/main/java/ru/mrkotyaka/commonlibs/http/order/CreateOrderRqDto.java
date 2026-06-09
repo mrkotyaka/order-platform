@@ -2,8 +2,8 @@ package ru.mrkotyaka.commonlibs.http.order;
 
 import java.util.Set;
 
-public record CreateOrderRequestDto(
+public record CreateOrderRqDto(
         String address,
-        Set<OrderItemRequestDto> items
+        Set<OrderItemRqDto> items
 ) {
 }

@@ -1,6 +1,6 @@
 package ru.mrkotyaka.commonlibs.http.delivery;
 
-public record CourierDTO(
+public record CourierRsDto(
         Long id,
         String name,
         Double rating,

@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.http.delivery.CourierDTO;
+import ru.mrkotyaka.commonlibs.http.delivery.CourierRsDto;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.deliveryservice.domain.db.*;
@@ -52,7 +52,7 @@ public class DeliveryProcessor {
         entity.setEtaMinutes(ThreadLocalRandom.current().nextInt(10, 45));
         entity.setDeliveryDateTime(LocalDateTime.now());
 
-        log.info("Saved order delivery was assigned: delivery={}", entity);
+        log.info("Saved order delivery was assigned.");
 
         return deliveryRepository.save(entity);
     }
@@ -87,13 +87,13 @@ public class DeliveryProcessor {
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Free couriers not found now"));
     }
 
-    public List<CourierDTO> getFreeCouriers() {
+    public List<CourierRsDto> getFreeCouriers() {
 
-        List<CourierDTO> allCourierDTO = new ArrayList<>();
+        List<CourierRsDto> allCourierRsDto = new ArrayList<>();
         var allCourier = courierRepository.findAllFree(LocalDateTime.now());
         for (var courier : allCourier) {
-            allCourierDTO.add(courierMapper.toCourierDTO(courier));
+            allCourierRsDto.add(courierMapper.toCourierDTO(courier));
         }
-        return allCourierDTO;
+        return allCourierRsDto;
     }
 }

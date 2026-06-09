@@ -1,6 +1,6 @@
 package ru.mrkotyaka.commonlibs.http.auth;
 
-public record AuthResponse(
+public record AuthResponseDto(
         String token
 ) {
 }

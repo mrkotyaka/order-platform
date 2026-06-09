@@ -5,12 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.mrkotyaka.commonlibs.http.delivery.CourierDTO;
-import ru.mrkotyaka.deliveryservice.domain.db.CourierEntity;
+import ru.mrkotyaka.commonlibs.http.delivery.CourierRsDto;
 import ru.mrkotyaka.deliveryservice.domain.DeliveryProcessor;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -21,7 +19,7 @@ public class CourierController {
     private final DeliveryProcessor deliveryProcessor;
 
     @GetMapping
-    public List<CourierDTO> getCouriers() {
+    public List<CourierRsDto> getCouriers() {
         log.info("Retrieving couriers list");
 
         return deliveryProcessor.getFreeCouriers();

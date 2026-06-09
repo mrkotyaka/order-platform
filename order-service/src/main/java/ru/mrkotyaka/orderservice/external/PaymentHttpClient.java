@@ -3,8 +3,8 @@ package ru.mrkotyaka.orderservice.external;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
+import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRqDto;
+import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRsDto;
 
 @FeignClient(
         name = "payment-service",
@@ -12,5 +12,5 @@ import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
 public interface PaymentHttpClient {
 
     @PostMapping("/api/payments")
-    CreatePaymentResponseDto createPayment(@RequestBody CreatePaymentRequestDto request);
+    CreatePaymentRsDto createPayment(@RequestBody CreatePaymentRqDto request);
 }

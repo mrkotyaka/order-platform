@@ -8,14 +8,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.http.item.ItemDTO;
+import ru.mrkotyaka.commonlibs.http.item.ItemRsDTO;
 import ru.mrkotyaka.commonlibs.http.notification.NotificationType;
-import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
-import ru.mrkotyaka.commonlibs.http.order.OrderDto;
-import ru.mrkotyaka.commonlibs.http.order.OrderPaymentRequest;
-import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
+import ru.mrkotyaka.commonlibs.http.order.*;
+import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRqDto;
+import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRsDto;
 import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
@@ -46,7 +43,7 @@ public class OrderProcessor {
     private String notificationTopic;
 
     @Transactional
-    public OrderEntity create(CreateOrderRequestDto request, Long authenticatedUserId) {
+    public OrderEntity create(CreateOrderRqDto request, Long authenticatedUserId) {
         var entity = orderMapper.toOrderEntity(request);
         entity.setCustomerId(authenticatedUserId);
         calcPricingForOrder(entity);
@@ -74,8 +71,8 @@ public class OrderProcessor {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderDto> getAllOrders() {
-        List<OrderDto> allOrdersDTO = new ArrayList<>();
+    public List<OrderRsDto> getAllOrders() {
+        List<OrderRsDto> allOrdersDTO = new ArrayList<>();
         var allOrders = orderRepository.findAll();
         for (var order : allOrders) {
             allOrdersDTO.add(orderMapper.toOrderDto(order));
@@ -85,8 +82,8 @@ public class OrderProcessor {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderDto> getAllPendingPaymentOrders() {
-        List<OrderDto> allPendingPaymentOrdersDTO = new ArrayList<>();
+    public List<OrderRsDto> getAllPendingPaymentOrders() {
+        List<OrderRsDto> allPendingPaymentOrdersDTO = new ArrayList<>();
         var allOrders = orderRepository.findAllPendingPayment();
         for (var order : allOrders) {
             allPendingPaymentOrdersDTO.add(orderMapper.toOrderDto(order));
@@ -115,14 +112,14 @@ public class OrderProcessor {
     @Transactional
     public OrderEntity processPayment(
             Long id,
-            OrderPaymentRequest request
+            OrderPaymentRqDto request
     ) {
         var entity = getOrderOrThrow(id);
         if (!entity.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)) {
             throw new RuntimeException("Order status is not PENDING_PAYMENT");
         }
         var response = paymentHttpClient
-                .createPayment(CreatePaymentRequestDto.builder()
+                .createPayment(CreatePaymentRqDto.builder()
                         .orderId(id)
                         .paymentMethod(request.paymentMethod())
                         .amount(entity.getTotalAmount())
@@ -143,7 +140,7 @@ public class OrderProcessor {
 
     private void sendOrderPaidEvent(
             OrderEntity entity,
-            CreatePaymentResponseDto response
+            CreatePaymentRsDto response
     ) {
         kafkaTemplate.send(
                 orderPaidTopic,
@@ -186,13 +183,13 @@ public class OrderProcessor {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemDTO> getAllItems() {
-        List<ItemDTO> allItemDTO = new ArrayList<>();
+    public List<ItemRsDTO> getAllItems() {
+        List<ItemRsDTO> allItemRsDTO = new ArrayList<>();
         var allItems = itemRepository.findAll();
         for (var item : allItems) {
-            allItemDTO.add(itemMapper.toItemDto(item));
+            allItemRsDTO.add(itemMapper.toItemDto(item));
         }
-        return allItemDTO;
+        return allItemRsDTO;
     }
 
     public void sendNotification(Long customerId, NotificationType notificationType, String payload) {

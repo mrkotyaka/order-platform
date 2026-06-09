@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.authservice.domain.CustomerService;
 import ru.mrkotyaka.authservice.domain.db.CustomerMapper;
-import ru.mrkotyaka.commonlibs.http.auth.CustomerResponseDTO;
+import ru.mrkotyaka.commonlibs.http.auth.CustomerRsDto;
 import ru.mrkotyaka.commonlibs.kafka.notification.CustomerNotificationDto;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class CustomerController {
     private final CustomerMapper customerMapper;
 
     @GetMapping
-    public List<CustomerResponseDTO> getAllCustomers(
+    public List<CustomerRsDto> getAllCustomers(
             @RequestHeader("X-User-Roles") String authenticatedUserRole) {
 
         log.info("Retrieving all users from the flow");
@@ -36,7 +36,7 @@ public class CustomerController {
     }
 
     @GetMapping("/whoami")
-    public CustomerResponseDTO getMe(
+    public CustomerRsDto getMe(
             @RequestHeader("X-User-Id") Long authenticatedUserId) {
 
         log.info("Retrieving users info");
@@ -45,7 +45,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public CustomerResponseDTO getCustomerInfo(
+    public CustomerRsDto getCustomerInfo(
             @PathVariable Long id,
             @RequestHeader("X-User-Id") Long authenticatedUserId,
             @RequestHeader("X-User-Roles") String authenticatedUserRole) {
