@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.http.item.ItemDTO;
 import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
@@ -44,6 +45,7 @@ public class OrderProcessor {
     @Value("${notification-topic}")
     private String notificationTopic;
 
+    @Transactional
     public OrderEntity create(CreateOrderRequestDto request, Long authenticatedUserId) {
         var entity = orderMapper.toOrderEntity(request);
         entity.setCustomerId(authenticatedUserId);
@@ -63,6 +65,7 @@ public class OrderProcessor {
         return saved;
     }
 
+    @Transactional(readOnly = true)
     public OrderEntity getOrderOrThrow(Long id) {
 //        var orderItemEntityOpt = orderRepository.findById(id);
         var orderItemEntityOpt = orderRepository.findWithItemsById(id);
@@ -71,6 +74,7 @@ public class OrderProcessor {
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
     }
 
+    @Transactional(readOnly = true)
     public List<OrderDto> getAllOrders() {
         List<OrderDto> allOrdersDTO = new ArrayList<>();
         var allOrders = orderRepository.findAll();
@@ -80,6 +84,7 @@ public class OrderProcessor {
         return allOrdersDTO;
     }
 
+    @Transactional(readOnly = true)
     public List<OrderDto> getAllPendingPaymentOrders() {
         List<OrderDto> allOrdersDTO = new ArrayList<>();
         var allOrders = orderRepository.findAllPendingPayment();
@@ -105,6 +110,7 @@ public class OrderProcessor {
         orderEntity.setTotalAmount(totalPrice);
     }
 
+    @Transactional
     public OrderEntity processPayment(
             Long id,
             OrderPaymentRequest request
@@ -127,6 +133,9 @@ public class OrderProcessor {
         entity.setOrderStatus(status);
 
         if(status.equals(OrderStatus.PAID)){
+
+            log.info("Prepare to sending because status is {}",OrderStatus.PAID.name());
+
             sendOrderPaidEvent(entity, response);
 //            sendNotification(
 //                    entity.getCustomerId(),
@@ -165,6 +174,7 @@ public class OrderProcessor {
         });
     }
 
+    @Transactional
     public void processDeliveryAssigned(DeliveryAssignedEvent event) {
         var order = getOrderOrThrow(event.orderId());
 
@@ -196,6 +206,7 @@ public class OrderProcessor {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<ItemDTO> getAllItems() {
         List<ItemDTO> allItemDTO = new ArrayList<>();
         var allItems = itemRepository.findAll();
