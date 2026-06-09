@@ -54,8 +54,12 @@ Content-Type: application/json
 ```
 ```JSON
 {
-  "username": "логин",
-  "password": "пароль"
+   "username": "логин",
+   "password": "пароль",
+   "address": "адрес",
+   "email": "э-мейл",
+   "phone": "номер телефона",
+   "notificationPreference": "SMS/EMAIL/PUSH"
 }
 ```
 
@@ -82,13 +86,20 @@ Authorization: Bearer токен, полученный при авторизац
 
 ```JSON
 {
-  "address": "mira, 12",
+  "address": "адрес доставки",
   "items": [
-    { "quantity": 2, "name": "ice cream" },
-    { "quantity": 2, "name": "bread" }
+    { "quantity": 2, "name": "продукт" },
+    { "quantity": 6, "name": "продукт" }
   ]
 }
 ```
+| Список продуктов  |
+|-------------------| 
+| bread             |
+| potato            |
+| tomato cherry     |
+| ice cream         |
+
 
 **🔍 Найти заказ по id**
 ```http 
@@ -216,12 +227,15 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
 - ✔️ notification-service
 - ✔️ add into customers card boolean type of notice (sms, email, push)
 - ✔️ fix assign courier!
-- notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
-- notification-service - check by null email
+- ✔️ notification-service. Sending email to customers. Used Kafka
+- ✔️ notification-service - check by null email
+- ✔️ deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id
+- ✔️ implementation Liquibase (spring.jpa.hibernate.ddl-auto=validate)
+- fix assign free courier 
+- add reviews-service (feedback). Different rating for delivery, system and products
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
-- add reviews-service (feedback)
-- in order_items rename courier_name to courier_id. implements logic
-- implements Liquibase or Flyway (spring.jpa.hibernate.ddl-auto=validate)
-- deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id 
-- close the direct method call. Stay only 8080 in docker in the end
+- Later. notification-service. Sending email to couriers. 
+- Later. close the direct method call. Stay only 8080 in docker in the end
+
+адд методы для вставки итемов и курьеров
