@@ -1,25 +1,16 @@
 package ru.mrkotyaka.orderservice.external;
 
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.service.annotation.HttpExchange;
-import org.springframework.web.service.annotation.PostExchange;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRequestDto;
 import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
 
-@HttpExchange(
-        accept = "application/json",
-        contentType = "application/json",
-        url = "/api/payments"
-)
+@FeignClient(
+        name = "payment-service",
+        url = "${payment-service.base-url}")
 public interface PaymentHttpClient {
 
-    @PostExchange
+    @PostMapping("/api/payments")
     CreatePaymentResponseDto createPayment(@RequestBody CreatePaymentRequestDto request);
 }
-
-//@FeignClient(name = "payment-service", url = "${payment-service.url}")
-//public interface PaymentHttpClient {
-//
-//    @PostMapping("/api/payments")
-//    CreatePaymentResponseDto createPayment(@RequestBody CreatePaymentRequestDto request);
-//}

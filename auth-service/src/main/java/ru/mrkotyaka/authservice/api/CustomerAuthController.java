@@ -1,12 +1,14 @@
 package ru.mrkotyaka.authservice.api;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.mrkotyaka.authservice.domain.CustomerService;
 import ru.mrkotyaka.commonlibs.http.auth.AuthRequestDTO;
 import ru.mrkotyaka.commonlibs.http.auth.AuthResponse;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -22,6 +24,9 @@ public class CustomerAuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequestDTO request) {
         String token = customerService.login(request);
+
+        log.info("Login was successful. Token: {}", token);
+
         return ResponseEntity.ok(new AuthResponse(token));
     }
 }

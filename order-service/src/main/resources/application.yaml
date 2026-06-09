@@ -26,4 +26,4 @@ payment-service:
 
 order-paid-topic: order.events
 delivery-assigned-topic: delivery.events
-notification-topic: notifications
+notification-topic: notifications.events

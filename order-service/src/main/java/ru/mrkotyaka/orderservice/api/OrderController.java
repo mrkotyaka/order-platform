@@ -28,7 +28,7 @@ public class OrderController {
             @RequestHeader("X-User-Id") Long authenticatedUserId
     ) {
         log.info("Processing the request in the flow: {}", Thread.currentThread());
-        log.debug("Creating order: request={} for user `{}`", request, authenticatedUserId);
+        log.info("Creating order: request={} for user `{}`", request, authenticatedUserId);
         var saved = orderProcessor.create(request, authenticatedUserId);
         return orderMapper.toOrderDto(saved);
     }
@@ -42,7 +42,7 @@ public class OrderController {
         log.info("Retrieving order with id `{}` for user `{}`", id, authenticatedUserId);
         var found = orderProcessor.getOrderOrThrow(id);
 
-        if(!found.getCustomerId().equals(authenticatedUserId) && authenticatedUserRole.equals("ROLE_USER")){
+        if (!found.getCustomerId().equals(authenticatedUserId) && authenticatedUserRole.equals("ROLE_USER")) {
             log.warn("User `{}` tried to access order `{}` belonging to user `{}`",
                     authenticatedUserId, id, found.getCustomerId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this order");
@@ -52,9 +52,9 @@ public class OrderController {
 
     @GetMapping
     public List<OrderDto> getAll(
-            @RequestHeader("X-User-Roles") String authenticatedUserRole){
+            @RequestHeader("X-User-Roles") String authenticatedUserRole) {
         log.info("Retrieving all orders from the flow");
-        if(authenticatedUserRole.equals("ROLE_USER")){
+        if (authenticatedUserRole.equals("ROLE_USER")) {
             log.warn("You are not is admin. Access denied to getting all orders");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to getting all orders");
         }
@@ -63,9 +63,9 @@ public class OrderController {
 
     @GetMapping("/pendingpayment")
     public List<OrderDto> getAllPending(
-            @RequestHeader("X-User-Roles") String authenticatedUserRole){
+            @RequestHeader("X-User-Roles") String authenticatedUserRole) {
         log.info("Retrieving all pending payment orders from the flow");
-        if(authenticatedUserRole.equals("ROLE_USER")){
+        if (authenticatedUserRole.equals("ROLE_USER")) {
             log.warn("You are not is admin. Access denied to getting all pending payment orders");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to getting all pending payment orders");
         }
@@ -79,12 +79,11 @@ public class OrderController {
             @RequestHeader("X-User-Roles") String authenticatedUserRole
     ) {
         log.debug("Paying order with id={}, request={}", id, request);
-        if(authenticatedUserRole.equals("ROLE_USER")){
+        if (authenticatedUserRole.equals("ROLE_USER")) {
             log.warn("You are not is admin. Access denied to pay for this order");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to pay for this order");
         }
         var entity = orderProcessor.processPayment(id, request);
         return orderMapper.toOrderDto(entity);
     }
-
 }

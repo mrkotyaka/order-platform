@@ -39,6 +39,7 @@ spring:
 #      mail.smtp.auth: true
 #      mail.smtp.starttls.enable: true
 
-notification-topic: notifications
 auth-service:
   url: http://localhost:8081
+
+notification-topic: notifications.events

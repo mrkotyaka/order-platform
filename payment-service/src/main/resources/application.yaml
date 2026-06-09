@@ -17,4 +17,4 @@ spring:
 server:
   port: 8088
 
-notification-topic: notifications
+notification-topic: notifications.events

@@ -21,10 +21,10 @@ public class OrderStatusListener {
         if (orderProcessor == null) return;
 
         String message = switch (order.getOrderStatus()) {
-            case PAID -> "Оплата заказа #%d прошла успешно".formatted(order.getId());
-            case PAYMENT_FAILED -> "Оплата заказа #%d не прошла. Попробуйте ещё раз".formatted(order.getId());
-            case DELIVERY_ASSIGNED -> "Курьер %s назначен для заказа #%d. Ожидайте через %d минут"
-                    .formatted(order.getCourierName(), order.getId(), order.getEtaMinutes());
+            case PAID -> "Payment for the order #%d was successful".formatted(order.getId());
+            case PAYMENT_FAILED -> "Payment for the order #%d did not go through. Try again".formatted(order.getId());
+            case DELIVERY_ASSIGNED ->
+                    "Courier %s assigned to order #%d. Expect in %d minutes".formatted(order.getCourierName(), order.getId(), order.getEtaMinutes());
             default -> null;
         };
 

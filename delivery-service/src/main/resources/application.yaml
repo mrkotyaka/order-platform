@@ -13,10 +13,12 @@ spring:
   kafka:
     consumer:
       group-id: delivery-service-group
+      properties:
+        spring.json.trusted.packages: "ru.mrkotyaka.commonlibs.*"
     bootstrap-servers: localhost:9092
 server:
   port: 8089
 
 order-paid-topic: order.events
 delivery-assigned-topic: delivery.events
-notification-topic: notifications
+notification-topic: notifications.events

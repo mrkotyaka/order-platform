@@ -38,7 +38,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
-//    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 }
 

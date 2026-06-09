@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.http.item.ItemDTO;
-import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
 import ru.mrkotyaka.commonlibs.http.notification.NotificationType;
 import ru.mrkotyaka.commonlibs.http.order.CreateOrderRequestDto;
 import ru.mrkotyaka.commonlibs.http.order.OrderDto;
@@ -20,6 +19,7 @@ import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentResponseDto;
 import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
+import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
 import ru.mrkotyaka.orderservice.domain.db.*;
 import ru.mrkotyaka.orderservice.external.PaymentHttpClient;
 
@@ -56,18 +56,17 @@ public class OrderProcessor {
         sendNotification(
                 saved.getCustomerId(),
                 NotificationType.ORDER_CREATED,
-                "Your #%d order has been successfully created in the amount of %s ₽".formatted(
+                "Your order #%d has been successfully created in the amount of %s ₽".formatted(
                         saved.getId(),
                         saved.getTotalAmount()
                 )
         );
-
+        log.info("Order #{} was created successfully", saved.getId());
         return saved;
     }
 
     @Transactional(readOnly = true)
     public OrderEntity getOrderOrThrow(Long id) {
-//        var orderItemEntityOpt = orderRepository.findById(id);
         var orderItemEntityOpt = orderRepository.findWithItemsById(id);
         return orderItemEntityOpt
                 .orElseThrow(() ->
@@ -81,17 +80,19 @@ public class OrderProcessor {
         for (var order : allOrders) {
             allOrdersDTO.add(orderMapper.toOrderDto(order));
         }
+        log.info("{} orders was found", (long) allOrdersDTO.size());
         return allOrdersDTO;
     }
 
     @Transactional(readOnly = true)
     public List<OrderDto> getAllPendingPaymentOrders() {
-        List<OrderDto> allOrdersDTO = new ArrayList<>();
+        List<OrderDto> allPendingPaymentOrdersDTO = new ArrayList<>();
         var allOrders = orderRepository.findAllPendingPayment();
         for (var order : allOrders) {
-            allOrdersDTO.add(orderMapper.toOrderDto(order));
+            allPendingPaymentOrdersDTO.add(orderMapper.toOrderDto(order));
         }
-        return allOrdersDTO;
+        log.info("{} pending payment orders was found", (long) allPendingPaymentOrdersDTO.size());
+        return allPendingPaymentOrdersDTO;
     }
 
 
@@ -107,6 +108,7 @@ public class OrderProcessor {
                 totalPrice = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())).add(totalPrice);
             }
         }
+        log.info("Calculated total price = {}", totalPrice);
         orderEntity.setTotalAmount(totalPrice);
     }
 
@@ -132,27 +134,10 @@ public class OrderProcessor {
 
         entity.setOrderStatus(status);
 
-        if(status.equals(OrderStatus.PAID)){
-
-            log.info("Prepare to sending because status is {}",OrderStatus.PAID.name());
-
+        if (status.equals(OrderStatus.PAID)) {
+            log.info("Prepare to sending notification because status is {}", OrderStatus.PAID.name());
             sendOrderPaidEvent(entity, response);
-//            sendNotification(
-//                    entity.getCustomerId(),
-//                    NotificationType.PAYMENT_SUCCESS,
-//                    "Payment for the #%d order in the amount of %s ₽ was successful".formatted(
-//                            entity.getId(),
-//                            entity.getTotalAmount()
-//                    )
-//            );
-//        } else {
-//            sendNotification(
-//                    entity.getCustomerId(),
-//                    NotificationType.PAYMENT_FAILED,
-//                    "Payment for the #%d order did not go through. Try again".formatted(entity.getId())
-//            );
         }
-
         return orderRepository.save(entity);
     }
 
@@ -183,18 +168,12 @@ public class OrderProcessor {
             return;
         }
 
+        log.info("Start delivery assigning");
+
         order.setOrderStatus(OrderStatus.DELIVERY_ASSIGNED);
         order.setCourierName(event.courierName());
         order.setEtaMinutes(event.etaMinutes());
         orderRepository.save(order);
-
-//        sendNotification(
-//                order.getCustomerId(),
-//                NotificationType.COURIER_ASSIGNED,
-//                "Courier %s assigned to order #%d. Expect in %d minutes".formatted(
-//                        event.courierName(), order.getId(), event.etaMinutes())
-//        );
-
         log.info("Order delivery assigned processed: orderId={}", order.getId());
     }
 

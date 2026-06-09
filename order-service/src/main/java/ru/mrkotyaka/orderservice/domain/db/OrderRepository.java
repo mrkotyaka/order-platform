@@ -13,7 +13,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
     @Query(value = """
             SELECT DISTINCT o.* FROM orders o
-            WHERE o.order_status <> 'PAID'
+            WHERE o.order_status = 'PENDING_PAYMENT'
             """, nativeQuery = true)
     List<OrderEntity> findAllPendingPayment();
 

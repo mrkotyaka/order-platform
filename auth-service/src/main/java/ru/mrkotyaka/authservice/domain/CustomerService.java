@@ -26,9 +26,11 @@ public class CustomerService {
         Customer customer = Customer.builder()
                 .username(request.username())
                 .password(passwordEncoder.encode(request.password()))
+                .address(request.address())
                 .email(request.email())
                 .phone(request.phone())
                 .roles(CustomerRoles.ROLE_USER)
+                .notificationPreference(request.notificationPreference())
                 .build();
 
         customerRepository.save(customer);

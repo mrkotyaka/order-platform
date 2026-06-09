@@ -4,8 +4,8 @@
 
 ## 🏗 Архитектура и Модули
 
-- **gateway-service** — (:8080) AuthenticationFilter и application.yaml с настройкой маршрутизации.
-- **auth-service** — (:8081) регистрация и авторизация пользователя.
+- **gateway-service** (:8080) — AuthenticationFilter и application.yaml с настройкой маршрутизации.
+- **auth-service** (:8081) — регистрация и авторизация пользователя.
 - **common-libs** — Общие DTO, события (Events) и перечисления (Enums).
 - **order-service** (:8087) — Оркестратор заказов. Создаёт записи и меняет статусы.
 - **payment-service** (:8088) — Обработка транзакций.
@@ -17,18 +17,20 @@
 Сервисы общаются асинхронно. Основная цепочка событий:
 
 1. **Order Service** создаёт заказ и публикует событие `order-created`.
-1. **Payment Service** слушает `order-created`, списывает средства и публикует `payment-completed`.
-1. **Order Service** меняет статус заказа на `PAID` и публикует `order-paid`.
-1. **Delivery Service** ловит `order-paid`, назначает курьера и публикует `delivery-assigned`.
-1. **Order Service** обновляет финальный статус.
-1. **Notification Service** по каждому событию отправляет уведомление клиенту.
+2. **Payment Service** слушает `order-created`, списывает средства и публикует `payment-completed`.
+3. **Order Service** меняет статус заказа на `PAID` и публикует `order-paid`.
+4. **Delivery Service** ловит `order-paid`, назначает курьера и публикует `delivery-assigned`.
+5. **Order Service** обновляет финальный статус.
+6. **Notification Service** формирует и оправляет уведомления клиенту по событиям: `ORDER_CREATED`, `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `COURIER_ASSIGNED`.
+7. **[MailHog](http://localhost:8025/)** - позволяет проверить отправку уведомлений на email.
+
 
 ### Схема топиков и сервисов
 
-| Topic            | Producer         | Consumers        |
-|------------------|------------------|------------------|
-| `order-events`   | order-service    | delivery-service |
-| `delivery-events`| delivery-service | order-service    |
+| Topic             | Producer         | Consumers        |
+|-------------------|------------------|------------------|
+| `order-events`    | order-service    | delivery-service |
+| `delivery-events` | delivery-service | order-service    |
 
 ## 🚀 Быстрый запуск
 
@@ -168,9 +170,33 @@ Authorization: Bearer токен, полученный при авторизац
 **Причина:** в Java добавлен новый статус в Enum, а в PostgreSQL осталось старое ограничение.
 
 **Решение:**
-```SQL
+``` SQL
 ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 ```
+
+**Ошибка:** Спам в логе в сервисе доставки: `The class 'ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent' is not in the trusted packages:
+[java.util, java.lang, ru.mrkotyaka.commonlibs.kafka]`
+
+**Причина:** Пакет ru.mrkotyaka.commonlibs.kafka.delivery не совпадает с указанным ru.mrkotyaka.commonlibs.kafka.
+
+**Решение:** В KafkaConfiguration delivery-service:
+``` java
+props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.kafka.delivery");
+// или разрешить всё сразу:
+props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
+```
+
+**Ошибка:** Спам в логе в сервисе доставки: `This error handler cannot process 'SerializationException's directly; please consider configuring an 'ErrorHandlingDeserializer' in the value and/or key deserializer`
+
+**Причина:** в том что в топике order.events лежит старое сообщение на offset 30, которое delivery-service не может десериализовать — и пытается снова и снова.
+
+**Решение:** Пропустить застрявший offset — старое сообщение уже не десериализуется, его нужно пропустить. Порядок исправления:
+1. Остановить **delivery-service**.
+2. Сбросить offset:
+    ```bash
+    docker exec -it <kafka-container> kafka-consumer-groups --bootstrap-server localhost:9092 --group delivery-service-group --topic order.events --reset-offsets --to-latest --execute
+    ```
+3. Запустить **delivery-service**.
 
 ## 📝 План для реализации
 ### Add
@@ -189,12 +215,12 @@ ALTER TABLE orders DROP CONSTRAINT orders_order_status_check;
 - ✔️ get order - check customer login (id)
 - ✔️ notification-service
 - ✔️ add into customers card boolean type of notice (sms, email, push)
-- fix assign courier!
+- ✔️ fix assign courier!
 - notification-service. Sending email to customers and couriers. Use RabbitMQ (Redis). Use interface for methods
 - notification-service - check by null email
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
-- add feedback
+- add reviews-service (feedback)
 - in order_items rename courier_name to courier_id. implements logic
 - implements Liquibase or Flyway (spring.jpa.hibernate.ddl-auto=validate)
 - deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id 
