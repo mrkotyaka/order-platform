@@ -6,11 +6,7 @@ plugins {
 
 version = "1.0.0"
 
-//java {
-//    toolchain {
-//        languageVersion = JavaLanguageVersion.of(21)
-//    }
-//}
+val springCloudVersion by extra("2024.0.0")
 
 dependencies {
     implementation(project(":common-libs"))
@@ -37,6 +33,14 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
     implementation("org.liquibase:liquibase-core")
+
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    }
 }
 
 tasks.withType<Test> {

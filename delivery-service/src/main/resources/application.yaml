@@ -1,19 +1,30 @@
+server:
+  port: 8089
+
 spring:
   application:
     name: delivery-service
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
   datasource:
     driver-class-name: org.postgresql.Driver
     password: ${POSTGRES_PASSWORD:postgres}
     username: ${POSTGRES_USER:postgres}
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_DELIVERIES:deliveries_db}
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
   liquibase:
     enabled: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
     contexts: dev
+
   kafka:
     consumer:
       group-id: delivery-service-group
@@ -21,9 +32,13 @@ spring:
         spring.json.trusted.packages: "ru.mrkotyaka.commonlibs.*"
     bootstrap-servers: localhost:9092
 
-server:
-  port: 8089
+# FeignClient
+order-service:
+  url: http://localhost:8087
 
+# exchange data topics
 order-paid-topic: order.events
 delivery-assigned-topic: delivery.events
-#notification-topic: notifications.events
+
+# notification topics
+notification-topic: notifications.events

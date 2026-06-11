@@ -3,8 +3,10 @@ package ru.mrkotyaka.deliveryservice.domain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.deliveryservice.domain.db.*;
@@ -60,12 +62,20 @@ public class DeliveryProcessor {
                 deliveryAssignedTopic,
                 assignedDelivery.getOrderId(),
                 DeliveryAssignedEvent.builder()
+                        .userId(assignedDelivery.getCourierId().getUserId())
                         .courierName(courierEntity.getName())
                         .orderId(assignedDelivery.getOrderId())
                         .etaMinutes(assignedDelivery.getEtaMinutes())
                         .build()
         ).thenAccept(result -> {
-            log.info("Delivery assigned to delivery={}", assignedDelivery.getId());
+            log.info("Delivery `{}` assigned", assignedDelivery.getId());
         });
+    }
+
+    public UUID getDeliveryUserId(UUID orderId){
+        DeliveryEntity entity = deliveryRepository.findByOrderId(orderId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery for order `%s` not found".formatted(orderId)));
+        return entity.getCourierId().getUserId();
     }
 }

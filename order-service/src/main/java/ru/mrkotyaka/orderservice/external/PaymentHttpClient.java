@@ -8,7 +8,7 @@ import ru.mrkotyaka.commonlibs.dto.payment.PaymentRsDto;
 
 @FeignClient(
         name = "payment-service",
-        url = "${payment-service.base-url}")
+        url = "${payment-service.url}")
 public interface PaymentHttpClient {
 
     @PostMapping("/api/payments/external")

@@ -87,4 +87,10 @@ public class OrderController {
         var entity = orderProcessor.processPayment(id, request);
         return orderMapper.toOrderDto(entity);
     }
+
+    @PostMapping("/delivered/external/{id}")
+    public OrderRsDto setStatusDelivered(@PathVariable("id") UUID orderId){
+        var entity = orderProcessor.processDeliveredState(orderId);
+        return orderMapper.toOrderDto(entity);
+    }
 }

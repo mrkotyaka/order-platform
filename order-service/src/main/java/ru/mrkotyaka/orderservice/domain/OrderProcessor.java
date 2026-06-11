@@ -172,7 +172,13 @@ public class OrderProcessor {
         order.setOrderStatus(OrderStatus.DELIVERY_ASSIGNED);
         order.setCourierName(event.courierName());
         order.setEtaMinutes(event.etaMinutes());
-        orderRepository.save(order);
+        var saved = orderRepository.save(order);
+
+        sendNotification(
+                event.userId(),
+                NotificationType.COURIER_ASSIGNED,
+                "You have been assigned delivery of the order `%s`".formatted(saved.getId())
+        );
         log.info("Order `{}` delivery assigned processed", order.getId());
     }
 
@@ -182,6 +188,16 @@ public class OrderProcessor {
         } else {
             log.error("Trying to assign delivery but order have incorrect state: `{}`", order.getId());
         }
+    }
+
+    public OrderEntity processDeliveredState(UUID orderId) {
+        var entity = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not found but it is impossible".formatted(orderId)));
+
+        entity.setOrderStatus(OrderStatus.DELIVERED);
+        var saved = orderRepository.save(entity);
+        log.info("Order `{}` delivered", orderId);
+        return saved;
     }
 
     public void sendNotification(UUID userId, NotificationType notificationType, String message) {
@@ -194,3 +210,4 @@ public class OrderProcessor {
         );
     }
 }
+
