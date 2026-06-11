@@ -25,6 +25,7 @@ public class OrderStatusListener {
             case PAYMENT_FAILED -> "Payment for the order `%s` did not go through. Try again".formatted(order.getId());
             case DELIVERY_ASSIGNED ->
                     "Courier %s assigned to order `%s`. Expect in %d minutes".formatted(order.getCourierName(), order.getId(), order.getEtaMinutes());
+            case DELIVERED -> "Your order `%s` has been successfully delivered. Enjoy your meal!".formatted(order.getId());
             default -> null;
         };
 
@@ -42,6 +43,7 @@ public class OrderStatusListener {
             case PAID -> NotificationType.PAYMENT_SUCCESS;
             case PAYMENT_FAILED -> NotificationType.PAYMENT_FAILED;
             case DELIVERY_ASSIGNED -> NotificationType.COURIER_ASSIGNED;
+            case DELIVERED -> NotificationType.DELIVERY_SUCCESS;
             default -> null;
         };
     }
