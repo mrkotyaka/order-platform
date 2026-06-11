@@ -80,7 +80,6 @@ public class OrderProcessor {
         for (var order : allOrders) {
             allOrdersDTO.add(orderMapper.toOrderDto(order));
         }
-        log.info("{} orders was found", (long) allOrdersDTO.size());
         return allOrdersDTO;
     }
 
@@ -91,7 +90,6 @@ public class OrderProcessor {
         for (var order : allOrders) {
             allPendingPaymentOrdersDTO.add(orderMapper.toOrderDto(order));
         }
-        log.info("{} pending payment orders was found", (long) allPendingPaymentOrdersDTO.size());
         return allPendingPaymentOrdersDTO;
     }
 
