@@ -14,20 +14,27 @@ import java.util.UUID;
 public interface CourierRepository extends JpaRepository<CourierEntity, UUID> {
 
     @Query(value = """
-            SELECT DISTINCT c.* FROM couriers c
-            LEFT JOIN deliveries d ON c.id = d.courier_id
-            WHERE d.id IS NULL
-            OR (d.created_at + (d.eta_minutes || ' minutes')::interval) < :now
-            ORDER BY c.rating DESC
+            select c.*
+            from couriers c
+            where not exists (
+                select 1
+                from deliveries d
+                where d.courier_id = c.id
+                  and d.delivered_at is null)
+            order by c.name;
             """, nativeQuery = true)
-    List<CourierEntity> findAllFree(@Param("now") LocalDateTime now);
+    List<CourierEntity> findAllFree();
 
     @Query(value = """
-            SELECT c.* FROM couriers c
-            LEFT JOIN deliveries d ON c.id = d.courier_id
-            WHERE d.id IS NULL
-            OR (d.created_at + (d.eta_minutes || ' minutes')::interval) < :now
-            ORDER BY c.rating DESC LIMIT 1
+            select c.*
+            from couriers c
+            left join (
+                        select d.courier_id, count(*) qtydelivery
+                        from deliveries d
+                        where d.delivered_at is null
+                        group by d.courier_id) din
+            on c.id = din.courier_id
+            order by coalesce(din.qtydelivery,0), c.rating desc limit 1
             """, nativeQuery = true)
-    Optional<CourierEntity> findOneFree(LocalDateTime now);
+    Optional<CourierEntity> findOne();
 }
