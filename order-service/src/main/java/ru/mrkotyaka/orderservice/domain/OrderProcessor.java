@@ -195,6 +195,11 @@ public class OrderProcessor {
         var entity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not found but it is impossible".formatted(orderId)));
 
+        if (!entity.getOrderStatus().equals(OrderStatus.DELIVERY_ASSIGNED)) {
+            log.error("You are trying to specify the Delivered status for order `{}` with an incorrect status. Order status must be DELIVERY_ASSIGNED", entity.getId());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order status is not `%s`".formatted(OrderStatus.DELIVERY_ASSIGNED));
+        }
+
         entity.setOrderStatus(OrderStatus.DELIVERED);
         entity.setDeliveredAt(LocalDateTime.now());
         var saved = orderRepository.save(entity);
