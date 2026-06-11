@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -16,12 +18,12 @@ import java.time.LocalDateTime;
 @Table(name = "deliveries")
 public class DeliveryEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @UuidGenerator
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(name = "order_id", nullable = false, unique = true)
-    private Long orderId;
+    private UUID orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courier_id")

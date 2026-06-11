@@ -5,10 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.mrkotyaka.commonlibs.http.payment.PaymentMethod;
-import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
+import org.hibernate.annotations.UuidGenerator;
+import ru.mrkotyaka.commonlibs.enums.payment.PaymentMethod;
+import ru.mrkotyaka.commonlibs.enums.payment.PaymentStatus;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -19,12 +21,12 @@ import java.math.BigDecimal;
 @Table(name = "payments")
 public class PaymentEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @UuidGenerator
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(name = "order_id", nullable = false, unique = true)
-    private Long orderId;
+    private UUID orderId;
 
     @Column(name = "amount")
     private BigDecimal amount;

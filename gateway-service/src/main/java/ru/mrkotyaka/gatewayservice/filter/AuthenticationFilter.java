@@ -65,7 +65,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 // 3. Модифицируем заголовки запроса перед отправкой в целевой микросервис
                 ServerHttpRequest modifiedRequest = request.mutate()
                         .header("X-User-Id", claims.getSubject()) // Передаем ID (Subject токена)
-                        .header("X-User-Roles", claims.get("roles", String.class)) // Передаем роли (если есть)
+                        .header("X-User-Roles", claims.get("role", String.class)) // Передаем роли (если есть)
                         .build();
 
                 // Пропускаем запрос дальше с модифицированными заголовками

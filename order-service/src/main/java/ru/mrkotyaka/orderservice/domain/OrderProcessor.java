@@ -8,12 +8,14 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.http.item.ItemRsDTO;
-import ru.mrkotyaka.commonlibs.http.notification.NotificationType;
-import ru.mrkotyaka.commonlibs.http.order.*;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRqDto;
-import ru.mrkotyaka.commonlibs.http.payment.CreatePaymentRsDto;
-import ru.mrkotyaka.commonlibs.http.payment.PaymentStatus;
+import ru.mrkotyaka.commonlibs.enums.notification.NotificationType;
+import ru.mrkotyaka.commonlibs.dto.order.OrderRqDto;
+import ru.mrkotyaka.commonlibs.dto.order.OrderPaymentRqDto;
+import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
+import ru.mrkotyaka.commonlibs.enums.order.OrderStatus;
+import ru.mrkotyaka.commonlibs.dto.payment.PaymentRqDto;
+import ru.mrkotyaka.commonlibs.dto.payment.PaymentRsDto;
+import ru.mrkotyaka.commonlibs.enums.payment.PaymentStatus;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
@@ -23,18 +25,18 @@ import ru.mrkotyaka.orderservice.external.PaymentHttpClient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class OrderProcessor {
     private final OrderRepository orderRepository;
-    private final OrderEntityMapper orderMapper;
+    private final OrderMapper orderMapper;
     private final ItemRepository itemRepository;
-    private final ItemEntityMapper itemMapper;
     private final PaymentHttpClient paymentHttpClient;
-    private final KafkaTemplate<Long, OrderPaidEvent> kafkaTemplate;
-    private final KafkaTemplate<Long, NotificationEvent> notificationKafkaTemplate;
+    private final KafkaTemplate<UUID, OrderPaidEvent> kafkaTemplate;
+    private final KafkaTemplate<UUID, NotificationEvent> notificationKafkaTemplate;
 
     @Value("${order-paid-topic}")
     private String orderPaidTopic;
@@ -43,31 +45,31 @@ public class OrderProcessor {
     private String notificationTopic;
 
     @Transactional
-    public OrderEntity create(CreateOrderRqDto request, Long authenticatedUserId) {
-        var entity = orderMapper.toOrderEntity(request);
-        entity.setCustomerId(authenticatedUserId);
-        calcPricingForOrder(entity);
-        entity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
-        var saved = orderRepository.save(entity);
+    public OrderEntity create(OrderRqDto request, UUID authUserId) {
+        var order = orderMapper.toOrderEntity(request);
+        order.setCustomerId(authUserId);
+        calcPricingForOrder(order);
+        order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
+        var saved = orderRepository.save(order);
 
         sendNotification(
                 saved.getCustomerId(),
                 NotificationType.ORDER_CREATED,
-                "Your order #%d has been successfully created in the amount of %s ₽".formatted(
+                "Your order `%s` has been successfully created in the amount of %s ₽".formatted(
                         saved.getId(),
                         saved.getTotalAmount()
                 )
         );
-        log.info("Order #{} was created successfully", saved.getId());
+        log.info("Order `{}` was created successfully", saved.getId());
         return saved;
     }
 
     @Transactional(readOnly = true)
-    public OrderEntity getOrderOrThrow(Long id) {
-        var orderItemEntityOpt = orderRepository.findWithItemsById(id);
-        return orderItemEntityOpt
+    public OrderEntity getOrderOrThrow(UUID id) {
+        var order = orderRepository.findWithItemsById(id);
+        return order
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Entity with id `%s` not found".formatted(id)));
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not found".formatted(id)));
     }
 
     @Transactional(readOnly = true)
@@ -96,11 +98,11 @@ public class OrderProcessor {
     private void calcPricingForOrder(OrderEntity orderEntity) {
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (OrderItemEntity item : orderEntity.getItems()) {
-            if (!itemRepository.existsByName(item.getName())) {
-                log.info("Item with name `{}` not found. Please use items list", item.getName());
+            if (!itemRepository.existsByName(item.getItemName())) {
+                log.info("Item `{}` not found. Please use items list", item.getItemName());
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             } else {
-                var itemPrice = itemRepository.findPriceByName(item.getName());
+                var itemPrice = itemRepository.findPriceByName(item.getItemName());
                 item.setPrice(BigDecimal.valueOf(itemPrice));
                 totalPrice = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())).add(totalPrice);
             }
@@ -111,48 +113,48 @@ public class OrderProcessor {
 
     @Transactional
     public OrderEntity processPayment(
-            Long id,
+            UUID id,
             OrderPaymentRqDto request
     ) {
-        var entity = getOrderOrThrow(id);
-        if (!entity.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)) {
+        var order = getOrderOrThrow(id);
+        if (!order.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)) {
             throw new RuntimeException("Order status is not PENDING_PAYMENT");
         }
         var response = paymentHttpClient
-                .createPayment(CreatePaymentRqDto.builder()
+                .createPayment(PaymentRqDto.builder()
                         .orderId(id)
                         .paymentMethod(request.paymentMethod())
-                        .amount(entity.getTotalAmount())
+                        .amount(order.getTotalAmount())
                         .build());
 
         var status = response.paymentStatus().equals(PaymentStatus.PAYMENT_SUCCEEDED)
                 ? OrderStatus.PAID
                 : OrderStatus.PAYMENT_FAILED;
 
-        entity.setOrderStatus(status);
+        order.setOrderStatus(status);
 
         if (status.equals(OrderStatus.PAID)) {
             log.info("Prepare to sending notification because status is {}", OrderStatus.PAID.name());
-            sendOrderPaidEvent(entity, response);
+            sendOrderPaidEvent(order, response);
         }
-        return orderRepository.save(entity);
+        return orderRepository.save(order);
     }
 
     private void sendOrderPaidEvent(
-            OrderEntity entity,
-            CreatePaymentRsDto response
+            OrderEntity order,
+            PaymentRsDto response
     ) {
         kafkaTemplate.send(
                 orderPaidTopic,
-                entity.getId(),
+                order.getId(),
                 OrderPaidEvent.builder()
-                        .orderId(entity.getId())
-                        .amount(entity.getTotalAmount())
+                        .orderId(order.getId())
+                        .amount(order.getTotalAmount())
                         .paymentMethod(response.paymentMethod())
                         .paymentId(response.paymentId())
                         .build()
         ).thenAccept(result -> {
-            log.info("Order Paid event sent: id={}", entity.getId());
+            log.info("Order `{}` Paid event sent", order.getId());
         });
     }
 
@@ -171,34 +173,24 @@ public class OrderProcessor {
         order.setCourierName(event.courierName());
         order.setEtaMinutes(event.etaMinutes());
         orderRepository.save(order);
-        log.info("Order delivery assigned processed: orderId={}", order.getId());
+        log.info("Order `{}` delivery assigned processed", order.getId());
     }
 
     private void processIncorrectDeliveryState(OrderEntity order) {
         if (order.getOrderStatus().equals(OrderStatus.DELIVERY_ASSIGNED)) {
-            log.info("Order delivery already assigned: orderId={}", order.getId());
+            log.info("Order `{}` delivery already assigned", order.getId());
         } else {
-            log.error("Trying to assign delivery but order have incorrect state: state={}", order.getId());
+            log.error("Trying to assign delivery but order have incorrect state: `{}`", order.getId());
         }
     }
 
-    @Transactional(readOnly = true)
-    public List<ItemRsDTO> getAllItems() {
-        List<ItemRsDTO> allItemRsDTO = new ArrayList<>();
-        var allItems = itemRepository.findAll();
-        for (var item : allItems) {
-            allItemRsDTO.add(itemMapper.toItemDto(item));
-        }
-        return allItemRsDTO;
-    }
-
-    public void sendNotification(Long customerId, NotificationType notificationType, String payload) {
+    public void sendNotification(UUID userId, NotificationType notificationType, String message) {
         notificationKafkaTemplate.send(
                 notificationTopic,
-                customerId,
-                new NotificationEvent(customerId, notificationType, payload)
+                userId,
+                new NotificationEvent(userId, notificationType, message)
         ).thenAccept(result ->
-                log.info("Notification event sent: customerId={}, type={}", customerId, notificationType)
+                log.info("Notification event sent: userId={}, type={}", userId, notificationType)
         );
     }
 }

@@ -2,9 +2,11 @@ package ru.mrkotyaka.commonlibs.kafka.delivery;
 
 import lombok.Builder;
 
+import java.util.UUID;
+
 @Builder
 public record DeliveryAssignedEvent(
-        Long orderId,
+        UUID orderId,
         String courierName,
         Integer etaMinutes
 ) {

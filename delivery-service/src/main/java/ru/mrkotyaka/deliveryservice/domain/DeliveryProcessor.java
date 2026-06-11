@@ -3,18 +3,14 @@ package ru.mrkotyaka.deliveryservice.domain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.http.delivery.CourierRsDto;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.deliveryservice.domain.db.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -23,9 +19,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class DeliveryProcessor {
 
     private final DeliveryRepository deliveryRepository;
-    private final CourierRepository courierRepository;
-    private final CourierEntityMapper courierMapper;
-    private final KafkaTemplate<Long, DeliveryAssignedEvent> kafkaTemplate;
+    private final KafkaTemplate<UUID, DeliveryAssignedEvent> kafkaTemplate;
+    private final CourierProcessor courierProcessor;
 
     @Value("${delivery-assigned-topic}")
     private String deliveryAssignedTopic;
@@ -34,6 +29,7 @@ public class DeliveryProcessor {
 
         var orderId = event.orderId();
         var found = deliveryRepository.findByOrderId(orderId);
+
         if (found.isPresent()) {
             log.info("Found order delivery was already assigned: delivery={}", found.get());
             return;
@@ -43,8 +39,8 @@ public class DeliveryProcessor {
         sendDeliveryAssignedEvent(assignedDelivery);
     }
 
-    private DeliveryEntity assignDelivery(Long orderId) {
-        var courierEntity = getFreeAnyCourierOrThrow();
+    private DeliveryEntity assignDelivery(UUID orderId) {
+        var courierEntity = courierProcessor.getFreeAnyCourierOrThrow();
 
         var entity = new DeliveryEntity();
         entity.setOrderId(orderId);
@@ -58,7 +54,7 @@ public class DeliveryProcessor {
     }
 
     private void sendDeliveryAssignedEvent(DeliveryEntity assignedDelivery) {
-        var courierEntity = getCourierByIdOrThrow(assignedDelivery.getCourierId().getId());
+        var courierEntity = courierProcessor.getCourierByIdOrThrow(assignedDelivery.getCourierId().getId());
 
         kafkaTemplate.send(
                 deliveryAssignedTopic,
@@ -71,29 +67,5 @@ public class DeliveryProcessor {
         ).thenAccept(result -> {
             log.info("Delivery assigned to delivery={}", assignedDelivery.getId());
         });
-    }
-
-    public CourierEntity getCourierByIdOrThrow(Long id) {
-        var courierEntityOpt = courierRepository.findById(id);
-        return courierEntityOpt
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Courier with id `%s` not found".formatted(id)));
-    }
-
-    public CourierEntity getFreeAnyCourierOrThrow() {
-        var courierEntityOpt = courierRepository.findOneFree(LocalDateTime.now());
-        return courierEntityOpt
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Free couriers not found now"));
-    }
-
-    public List<CourierRsDto> getFreeCouriers() {
-
-        List<CourierRsDto> allCourierRsDto = new ArrayList<>();
-        var allCourier = courierRepository.findAllFree(LocalDateTime.now());
-        for (var courier : allCourier) {
-            allCourierRsDto.add(courierMapper.toCourierDTO(courier));
-        }
-        return allCourierRsDto;
     }
 }

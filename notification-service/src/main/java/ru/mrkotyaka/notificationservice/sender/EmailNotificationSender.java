@@ -22,11 +22,11 @@ public class EmailNotificationSender {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(from);
             message.setTo(to);
-            message.setSubject("Order Notification");
+            message.setSubject("Order notification");
             message.setText(text);
             mailSender.send(message);
 
-            log.info("Notification successfully sent via EMAIL to customer {}", to);
+            log.info("Notification successfully sent via EMAIL to {}", to);
 
         } catch (Exception e) {
             log.error("Failed to send email to {}: {}", to, e.getMessage());

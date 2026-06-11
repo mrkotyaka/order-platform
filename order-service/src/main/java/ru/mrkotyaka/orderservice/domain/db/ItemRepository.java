@@ -4,7 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ItemRepository extends JpaRepository<ItemEntity, Long> {
+import java.util.UUID;
+
+public interface ItemRepository extends JpaRepository<ItemEntity, UUID> {
     boolean existsByName(String name);
 
     @Query("SELECT i.price FROM ItemEntity i WHERE i.name = :name")

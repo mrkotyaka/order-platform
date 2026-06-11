@@ -4,7 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.mrkotyaka.authservice.domain.db.Customer;
+import ru.mrkotyaka.authservice.domain.db.UserEntity;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -24,9 +24,9 @@ public class JwtService {
         this.expiration = expiration;
     }
 
-    public String generateToken(Customer user) {
+    public String generateToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("roles", user.getRoles().name());
+        claims.put("role", user.getRole());
 
         return Jwts.builder()
                 .claims(claims)

@@ -3,4 +3,4 @@ databaseChangeLog:
       file: db/changelog/changesets/001-create-orders-table.sql
   - include:
       file: db/changelog/data/v1-insert-test-items.sql
-      context: dev # Данные вставятся только если запущен контекст "test"
+      context: dev

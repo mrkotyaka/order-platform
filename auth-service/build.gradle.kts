@@ -4,6 +4,8 @@ plugins {
 
 version = "1.0.0"
 
+val springCloudVersion by extra("2024.0.0")
+
 dependencies {
     implementation(project(":common-libs"))
 
@@ -28,6 +30,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+
     // additional libs
     implementation("org.mapstruct:mapstruct:1.6.3")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
@@ -35,6 +39,12 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
     implementation("org.liquibase:liquibase-core")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    }
 }
 
 tasks.test {

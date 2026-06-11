@@ -7,9 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
+public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
 
     @Query(value = """
             SELECT DISTINCT o.* FROM orders o
@@ -18,5 +19,5 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     List<OrderEntity> findAllPendingPayment();
 
     @EntityGraph(attributePaths = {"items"})
-    Optional<OrderEntity> findWithItemsById(Long id);
+    Optional<OrderEntity> findWithItemsById(UUID id);
 }

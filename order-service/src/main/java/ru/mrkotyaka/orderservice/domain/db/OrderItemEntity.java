@@ -2,10 +2,12 @@ package ru.mrkotyaka.orderservice.domain.db;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.UUID;
 
 @ToString
 @Setter
@@ -16,18 +18,16 @@ import java.util.Objects;
 @Table(name = "order_items")
 public class OrderItemEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @UuidGenerator
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    private OrderEntity order;
+    private OrderEntity orderId;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "item_name")
     @Column(name = "item_name")
-    private String name;
+    private String itemName;
 
     @Column(name = "quantity")
     private Integer quantity;

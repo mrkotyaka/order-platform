@@ -1,14 +1,15 @@
 package ru.mrkotyaka.commonlibs.kafka.delivery;
 
 import lombok.Builder;
-import ru.mrkotyaka.commonlibs.http.payment.PaymentMethod;
+import ru.mrkotyaka.commonlibs.enums.payment.PaymentMethod;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Builder
 public record OrderPaidEvent(
-        Long orderId,
-        Long paymentId,
+        UUID orderId,
+        UUID paymentId,
         BigDecimal amount,
         PaymentMethod paymentMethod
 ) {

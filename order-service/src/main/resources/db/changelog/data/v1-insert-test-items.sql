@@ -3,7 +3,11 @@
 
 --changeset kilianrow:1
 insert into items (id, name, price)
-values (1, 'bread', 50.0),
-       (2, 'potato', 100.0),
-       (3, 'tomato cherry', 200.0),
-       (4, 'ice cream', 33.5);
+values  ('685d4b4e-5ab3-4ed8-b0f6-484035119b24', 'banana', 100),
+        ('c16351af-edf6-4b83-8b52-f9e46797463a', 'apple', 90),
+        ('9b5f5f58-68fc-489c-abdc-a5caa849fadc', 'grape', 80),
+        ('6894bec1-94b6-43b1-8811-6a64122873cc', 'strawberry', 150),
+        ('f9335110-d782-401c-9659-3031f63f3832', 'bread', 50),
+        ('521fe35a-41c8-433d-8201-a141ea3ca783', 'potato', 110),
+        ('309e36fa-ead5-4675-8a5c-562b279b16de', 'tomato cherry', 200),
+        ('c50c8732-4754-45d8-a830-299a24923f52', 'ice cream', 33.5);

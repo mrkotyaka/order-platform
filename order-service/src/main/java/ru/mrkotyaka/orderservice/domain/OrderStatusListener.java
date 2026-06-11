@@ -3,8 +3,8 @@ package ru.mrkotyaka.orderservice.domain;
 import jakarta.persistence.PreUpdate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.mrkotyaka.commonlibs.http.notification.NotificationType;
-import ru.mrkotyaka.commonlibs.http.order.OrderStatus;
+import ru.mrkotyaka.commonlibs.enums.notification.NotificationType;
+import ru.mrkotyaka.commonlibs.enums.order.OrderStatus;
 import ru.mrkotyaka.orderservice.domain.db.OrderEntity;
 
 @Component
@@ -21,10 +21,10 @@ public class OrderStatusListener {
         if (orderProcessor == null) return;
 
         String message = switch (order.getOrderStatus()) {
-            case PAID -> "Payment for the order #%d was successful".formatted(order.getId());
-            case PAYMENT_FAILED -> "Payment for the order #%d did not go through. Try again".formatted(order.getId());
+            case PAID -> "Payment for the order `%s` was successful".formatted(order.getId());
+            case PAYMENT_FAILED -> "Payment for the order `%s` did not go through. Try again".formatted(order.getId());
             case DELIVERY_ASSIGNED ->
-                    "Courier %s assigned to order #%d. Expect in %d minutes".formatted(order.getCourierName(), order.getId(), order.getEtaMinutes());
+                    "Courier %s assigned to order `%s`. Expect in %d minutes".formatted(order.getCourierName(), order.getId(), order.getEtaMinutes());
             default -> null;
         };
 

@@ -223,7 +223,7 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
 - ✔️ gateway-service
 - ✔️ customers (id, name, email, phone, role) - implements like user_credentials
 - ✔️ impl items (id, name, price)
-- ✔️ get order - check customer login (id)
+- ✔️ get order - check user login (id)
 - ✔️ notification-service
 - ✔️ add into customers card boolean type of notice (sms, email, push)
 - ✔️ fix assign courier!
@@ -231,10 +231,12 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
 - ✔️ notification-service - check by null email
 - ✔️ deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id
 - ✔️ implementation Liquibase (spring.jpa.hibernate.ddl-auto=validate)
-- fix assign free courier 
+- fix assign free courier
+- add methods for create records couriers aand items
 - add reviews-service (feedback). Different rating for delivery, system and products
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
+- implementation auth for courier into auth-service and transfer common data into delivery.courierEntity via Kafka for assign.
 - Later. notification-service. Sending email to couriers. 
 - Later. close the direct method call. Stay only 8080 in docker in the end
 

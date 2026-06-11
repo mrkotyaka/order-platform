@@ -8,16 +8,16 @@ spring:
     driver-class-name: org.postgresql.Driver
     password: ${POSTGRES_PASSWORD:postgres}
     username: ${POSTGRES_USER:postgres}
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_ORDERS:orders}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_ORDERS:orders_db}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     open-in-view: false
   liquibase:
-    enabled: true
+    enabled: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    contexts: test
+    contexts: dev
   kafka:
     consumer:
       group-id: order-service-group

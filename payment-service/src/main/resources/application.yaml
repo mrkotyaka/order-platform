@@ -5,15 +5,15 @@ spring:
     driver-class-name: org.postgresql.Driver
     password: ${POSTGRES_PASSWORD:postgres}
     username: ${POSTGRES_USER:postgres}
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_PAYMENTS:payments}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_PAYMENTS:payments_db}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
   liquibase:
-    enabled: true
+    enabled: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    contexts: test
+    contexts: dev
   threads:
     virtual:
       enabled: true
