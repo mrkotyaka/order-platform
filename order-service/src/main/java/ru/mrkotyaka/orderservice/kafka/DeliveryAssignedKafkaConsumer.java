@@ -21,7 +21,7 @@ public class DeliveryAssignedKafkaConsumer {
             containerFactory = "deliveryAssignedEventEventListenerFactory"
     )
     public void listen(DeliveryAssignedEvent event) {
-        log.info("Received delivery assigned event {}", event);
+        log.info("Received delivery assigned event orderId `{}`", event.orderId());
         orderProcessor.processDeliveryAssigned(event);
     }
 }

@@ -45,11 +45,11 @@ public class DeliveryProcessor {
     }
 
     private DeliveryEntity assignDelivery(UUID orderId) {
-        var courierEntity = courierProcessor.getFreeAnyCourierOrThrow();
+        var freeCourier = courierProcessor.getFreeAnyCourierOrThrow();
 
         var entity = new DeliveryEntity();
         entity.setOrderId(orderId);
-        entity.setCourierId(courierEntity);
+        entity.setCourierId(freeCourier);
         entity.setEtaMinutes(ThreadLocalRandom.current().nextInt(10, 45));
         entity.setCreatedAt(LocalDateTime.now());
 

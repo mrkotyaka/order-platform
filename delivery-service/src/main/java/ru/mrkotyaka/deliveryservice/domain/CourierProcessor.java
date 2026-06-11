@@ -41,16 +41,15 @@ public class CourierProcessor {
     }
 
     public CourierEntity getFreeAnyCourierOrThrow() {
-        var courierEntityOpt = courierRepository.findOneFree(LocalDateTime.now());
-        return courierEntityOpt
+        var freeCourier = courierRepository.findOne();
+        return freeCourier
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Free couriers not found now"));
     }
 
     public List<CourierRsDto> getFreeCouriers() {
-
         List<CourierRsDto> allCourierRsDto = new ArrayList<>();
-        var allCourier = courierRepository.findAllFree(LocalDateTime.now());
+        var allCourier = courierRepository.findAllFree();
         for (var courier : allCourier) {
             allCourierRsDto.add(courierMapper.toCourierRsDto(courier));
         }
@@ -58,27 +57,10 @@ public class CourierProcessor {
     }
 
     public CourierRsDto createCourier(CourierRqDto request) {
-        log.info("create entity");
         var courier = new CourierEntity();
-
-        log.info("=== CREATE COURIER START ===");
-        log.info("Request userId: {}", request.userId());
-        log.info("Request name: '{}'", request.name());
-
-        log.info("mapping dto to entity");
         courier = courierMapper.toCourierEntity(request);
-
-        log.info("After mapping - entity name: '{}'", courier.getName());
-        log.info("After mapping - entity userId: '{}'", courier.getUserId());
-
-        if (courier.getName() == null) {
-            log.error("ERROR: Courier name is NULL after mapping!");
-        }
-
-        log.info("saving entity");
         courierRepository.save(courier);
-
-        log.info("responding dto");
+        log.info("Courier saved successfully");
         return courierMapper.toCourierRsDto(courier);
     }
 }

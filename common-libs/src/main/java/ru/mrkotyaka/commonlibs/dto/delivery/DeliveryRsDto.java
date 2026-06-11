@@ -6,8 +6,8 @@ import java.util.UUID;
 public record DeliveryRsDto(
         UUID id,
         UUID orderId,
-        Integer etaMinutes,
         LocalDateTime createdAt,
+        Integer etaMinutes,
         LocalDateTime deliveredAt
 ) {
 }

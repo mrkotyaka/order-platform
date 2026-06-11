@@ -43,7 +43,6 @@ public class CourierController {
             log.warn("You are not is admin. Access denied to create new item");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to create new item");
         }
-
         return courierProcessor.getFreeCouriers();
     }
 

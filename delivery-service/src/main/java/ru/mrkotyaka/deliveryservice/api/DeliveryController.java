@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
 import ru.mrkotyaka.deliveryservice.domain.DeliveryProcessor;
-import ru.mrkotyaka.deliveryservice.external.OrderHttpClient;
 
 import java.util.UUID;
 
@@ -18,7 +17,6 @@ import java.util.UUID;
 public class DeliveryController {
 
     private final DeliveryProcessor deliveryProcessor;
-    private final OrderHttpClient orderHttpClient;
 
     @PostMapping("/delivered/{id}")
     public OrderRsDto setDelivered(
