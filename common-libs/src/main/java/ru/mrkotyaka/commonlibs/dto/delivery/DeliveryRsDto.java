@@ -10,6 +10,7 @@ public record DeliveryRsDto(
         UUID orderId,
         CourierRqDto courierId,
         Integer etaMinutes,
+        LocalDateTime deliveredAt,
         LocalDateTime deliveryDateTime
 ) {
 }

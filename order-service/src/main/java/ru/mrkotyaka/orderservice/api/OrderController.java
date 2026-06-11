@@ -30,8 +30,7 @@ public class OrderController {
     ) {
         log.debug("Processing the request: {}", Thread.currentThread());
         log.info("Creating order for user `{}`", authUserId);
-        var saved = orderProcessor.create(request, authUserId);
-        return orderMapper.toOrderDto(saved);
+        return orderProcessor.create(request, authUserId);
     }
 
     @GetMapping("/{id}")
@@ -84,13 +83,11 @@ public class OrderController {
             log.warn("You are not is admin. Access denied to pay for this order");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to pay for this order");
         }
-        var entity = orderProcessor.processPayment(id, request);
-        return orderMapper.toOrderDto(entity);
+        return orderProcessor.processPayment(id, request);
     }
 
     @PostMapping("/delivered/external/{id}")
     public OrderRsDto setStatusDelivered(@PathVariable("id") UUID orderId){
-        var entity = orderProcessor.processDeliveredState(orderId);
-        return orderMapper.toOrderDto(entity);
+        return orderProcessor.processDeliveredState(orderId);
     }
 }

@@ -10,6 +10,7 @@ import ru.mrkotyaka.commonlibs.enums.order.OrderStatus;
 import ru.mrkotyaka.orderservice.domain.OrderStatusListener;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -41,6 +42,9 @@ public class OrderEntity {
 
     @Column(name = "eta_minutes")
     private Integer etaMinutes;
+
+    @Column(name = "delivered_at")
+    private LocalDateTime deliveredAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)

@@ -23,6 +23,7 @@ import ru.mrkotyaka.orderservice.domain.db.*;
 import ru.mrkotyaka.orderservice.external.PaymentHttpClient;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -45,12 +46,12 @@ public class OrderProcessor {
     private String notificationTopic;
 
     @Transactional
-    public OrderEntity create(OrderRqDto request, UUID authUserId) {
-        var order = orderMapper.toOrderEntity(request);
-        order.setCustomerId(authUserId);
-        calcPricingForOrder(order);
-        order.setOrderStatus(OrderStatus.PENDING_PAYMENT);
-        var saved = orderRepository.save(order);
+    public OrderRsDto create(OrderRqDto request, UUID authUserId) {
+        var entity = orderMapper.toOrderEntity(request);
+        entity.setCustomerId(authUserId);
+        calcPricingForOrder(entity);
+        entity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
+        var saved = orderRepository.save(entity);
 
         sendNotification(
                 saved.getCustomerId(),
@@ -61,7 +62,7 @@ public class OrderProcessor {
                 )
         );
         log.info("Order `{}` was created successfully", saved.getId());
-        return saved;
+        return orderMapper.toOrderDto(saved);
     }
 
     @Transactional(readOnly = true)
@@ -112,32 +113,33 @@ public class OrderProcessor {
     }
 
     @Transactional
-    public OrderEntity processPayment(
+    public OrderRsDto processPayment(
             UUID id,
             OrderPaymentRqDto request
     ) {
-        var order = getOrderOrThrow(id);
-        if (!order.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)) {
+        var entity = getOrderOrThrow(id);
+        if (!entity.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)) {
             throw new RuntimeException("Order status is not PENDING_PAYMENT");
         }
         var response = paymentHttpClient
                 .createPayment(PaymentRqDto.builder()
                         .orderId(id)
                         .paymentMethod(request.paymentMethod())
-                        .amount(order.getTotalAmount())
+                        .amount(entity.getTotalAmount())
                         .build());
 
         var status = response.paymentStatus().equals(PaymentStatus.PAYMENT_SUCCEEDED)
                 ? OrderStatus.PAID
                 : OrderStatus.PAYMENT_FAILED;
 
-        order.setOrderStatus(status);
+        entity.setOrderStatus(status);
 
         if (status.equals(OrderStatus.PAID)) {
             log.info("Prepare to sending notification because status is {}", OrderStatus.PAID.name());
-            sendOrderPaidEvent(order, response);
+            sendOrderPaidEvent(entity, response);
         }
-        return orderRepository.save(order);
+        var saved = orderRepository.save(entity);
+        return orderMapper.toOrderDto(saved);
     }
 
     private void sendOrderPaidEvent(
@@ -190,14 +192,16 @@ public class OrderProcessor {
         }
     }
 
-    public OrderEntity processDeliveredState(UUID orderId) {
+    @Transactional
+    public OrderRsDto processDeliveredState(UUID orderId) {
         var entity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not found but it is impossible".formatted(orderId)));
 
         entity.setOrderStatus(OrderStatus.DELIVERED);
+        entity.setDeliveredAt(LocalDateTime.now());
         var saved = orderRepository.save(entity);
         log.info("Order `{}` delivered", orderId);
-        return saved;
+        return orderMapper.toOrderDto(saved);
     }
 
     public void sendNotification(UUID userId, NotificationType notificationType, String message) {
