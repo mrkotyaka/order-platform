@@ -1,7 +1,10 @@
 package ru.mrkotyaka.orderservice.domain.db;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -9,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
-@ToString
 @Setter
 @Getter
 @NoArgsConstructor
@@ -26,8 +28,8 @@ public class OrderItemEntity {
     @JoinColumn(name = "order_id")
     private OrderEntity orderId;
 
-    @Column(name = "item_name")
-    private String itemName;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "quantity")
     private Integer quantity;
@@ -42,7 +44,7 @@ public class OrderItemEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Class<?> oEffectiveClass = o instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if(thisEffectiveClass != oEffectiveClass) return false;
+        if (thisEffectiveClass != oEffectiveClass) return false;
         OrderItemEntity that = (OrderItemEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
@@ -50,5 +52,16 @@ public class OrderItemEntity {
     @Override
     public int hashCode() {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "OrderItemEntity{" +
+                "id=" + id +
+//                ", orderId=" + orderId +
+                ", name='" + name + '\'' +
+                ", quantity=" + quantity +
+                ", price=" + price +
+                '}';
     }
 }

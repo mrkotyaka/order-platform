@@ -48,4 +48,18 @@ public class OrderEntity {
 
     @OneToMany(mappedBy = "orderId", cascade = CascadeType.PERSIST)
     private Set<OrderItemEntity> items = new LinkedHashSet<>();
+
+    @Override
+    public String toString() {
+        return "OrderEntity{" +
+                "items=" + items +
+                ", orderStatus=" + orderStatus +
+                ", etaMinutes=" + etaMinutes +
+                ", courierName='" + courierName + '\'' +
+                ", totalAmount=" + totalAmount +
+                ", address='" + address + '\'' +
+                ", customerId=" + customerId +
+                ", id=" + id +
+                '}';
+    }
 }

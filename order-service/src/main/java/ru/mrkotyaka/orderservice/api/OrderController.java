@@ -28,7 +28,7 @@ public class OrderController {
             @RequestBody OrderRqDto request,
             @RequestHeader("X-User-Id") UUID authUserId
     ) {
-        log.info("Processing the request: {}", Thread.currentThread());
+        log.debug("Processing the request: {}", Thread.currentThread());
         log.info("Creating order for user `{}`", authUserId);
         var saved = orderProcessor.create(request, authUserId);
         return orderMapper.toOrderDto(saved);

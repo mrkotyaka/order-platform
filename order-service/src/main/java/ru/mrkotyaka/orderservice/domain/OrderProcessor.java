@@ -98,16 +98,16 @@ public class OrderProcessor {
     private void calcPricingForOrder(OrderEntity orderEntity) {
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (OrderItemEntity item : orderEntity.getItems()) {
-            if (!itemRepository.existsByName(item.getItemName())) {
-                log.info("Item `{}` not found. Please use items list", item.getItemName());
+            if (!itemRepository.existsByName(item.getName())) {
+                log.info("Item `{}` not found. Please use items list", item.getName());
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             } else {
-                var itemPrice = itemRepository.findPriceByName(item.getItemName());
+                var itemPrice = itemRepository.findPriceByName(item.getName());
                 item.setPrice(BigDecimal.valueOf(itemPrice));
                 totalPrice = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())).add(totalPrice);
             }
         }
-        log.info("Calculated total price = {}", totalPrice);
+        log.info("The calculation is over");
         orderEntity.setTotalAmount(totalPrice);
     }
 
