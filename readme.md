@@ -21,6 +21,7 @@
 3. **Order Service** меняет статус заказа на `PAID` и публикует `order-paid`.
 4. **Delivery Service** ловит `order-paid`, назначает курьера и публикует `delivery-assigned`.
 5. **Order Service** обновляет финальный статус.
+6. **Delivery Service** меняет статус заказа на `DELIVERED`.
 6. **Notification Service** формирует и оправляет уведомления клиенту по событиям: `ORDER_CREATED`, `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `COURIER_ASSIGNED`.
 7. **[MailHog](http://localhost:8025/)** - позволяет проверить отправку уведомлений на email.
 
@@ -231,13 +232,15 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
 - ✔️ notification-service - check by null email
 - ✔️ deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id
 - ✔️ implementation Liquibase (spring.jpa.hibernate.ddl-auto=validate)
+- ✔️ check DELIVERY_ASSIGNED for delivered
+- ✔️ add methods for create records couriers and items
+- ✔️ implementation auth for courier into auth-service and transfer common data into delivery.courierEntity via Kafka for assign.
+- update ddl for liquibase
+- add cancel
+- add expired
 - fix assign free courier
-- add methods for create records couriers aand items
 - add reviews-service (feedback). Different rating for delivery, system and products
 - cart-service (user-service, logging, create new)
 - catalog-service (menu-service)
-- implementation auth for courier into auth-service and transfer common data into delivery.courierEntity via Kafka for assign.
 - Later. notification-service. Sending email to couriers. 
 - Later. close the direct method call. Stay only 8080 in docker in the end
-
-адд методы для вставки итемов и курьеров
