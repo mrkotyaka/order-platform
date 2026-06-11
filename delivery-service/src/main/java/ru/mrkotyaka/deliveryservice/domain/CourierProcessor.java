@@ -24,6 +24,15 @@ public class CourierProcessor {
     private final CourierRepository courierRepository;
     private final CourierMapper courierMapper;
 
+    public List<CourierRsDto> getCouriers() {
+        List<CourierRsDto> allCourierRsDto = new ArrayList<>();
+        var entities = courierRepository.findAll();
+        for (var entity : entities) {
+            allCourierRsDto.add(courierMapper.toCourierRsDto(entity));
+        }
+        return allCourierRsDto;
+    }
+
     public CourierEntity getCourierByIdOrThrow(UUID id) {
         var courierEntityOpt = courierRepository.findById(id);
         return courierEntityOpt

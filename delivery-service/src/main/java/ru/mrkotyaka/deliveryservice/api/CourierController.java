@@ -30,6 +30,20 @@ public class CourierController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to create new item");
         }
 
+        return courierProcessor.getCouriers();
+    }
+
+    @GetMapping("/free")
+    public List<CourierRsDto> getFreeCouriers(
+            @RequestHeader("X-User-Roles") String authUserRole
+    ) {
+        log.info("Retrieving list of free couriers");
+
+        if (!authUserRole.equals("ADMIN")) {
+            log.warn("You are not is admin. Access denied to create new item");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to create new item");
+        }
+
         return courierProcessor.getFreeCouriers();
     }
 
