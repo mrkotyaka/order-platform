@@ -6,8 +6,6 @@ import org.mapstruct.ReportingPolicy;
 import ru.mrkotyaka.commonlibs.dto.courier.CourierRqDto;
 import ru.mrkotyaka.commonlibs.dto.courier.CourierRsDto;
 
-import java.util.List;
-
 @Mapper(
         unmappedSourcePolicy = ReportingPolicy.IGNORE,
         componentModel = MappingConstants.ComponentModel.SPRING)

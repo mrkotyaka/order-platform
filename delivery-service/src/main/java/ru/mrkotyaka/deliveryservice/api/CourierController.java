@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.dto.auth.UserRsDto;
 import ru.mrkotyaka.commonlibs.dto.courier.CourierRqDto;
 import ru.mrkotyaka.commonlibs.dto.courier.CourierRsDto;
 import ru.mrkotyaka.deliveryservice.domain.CourierProcessor;
-import ru.mrkotyaka.deliveryservice.domain.DeliveryProcessor;
 
 import java.util.List;
 

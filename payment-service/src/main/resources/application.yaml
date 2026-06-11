@@ -1,24 +1,28 @@
+server:
+  port: 8088
+
 spring:
   application:
     name: payment-service
+
   datasource:
     driver-class-name: org.postgresql.Driver
     password: ${POSTGRES_PASSWORD:postgres}
     username: ${POSTGRES_USER:postgres}
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_PAYMENTS:payments_db}
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
   liquibase:
     enabled: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
     contexts: dev
+
   threads:
     virtual:
       enabled: true
-
-server:
-  port: 8088
 
 #notification-topic: notifications.events

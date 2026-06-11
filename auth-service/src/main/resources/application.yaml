@@ -28,6 +28,7 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     contexts: dev
 
+# FeignClient
 delivery-service:
   url: http://localhost:8089
 

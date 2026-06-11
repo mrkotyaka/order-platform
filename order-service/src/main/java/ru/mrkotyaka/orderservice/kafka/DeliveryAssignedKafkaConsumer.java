@@ -23,6 +23,5 @@ public class DeliveryAssignedKafkaConsumer {
     public void listen(DeliveryAssignedEvent event) {
         log.info("Received delivery assigned event {}", event);
         orderProcessor.processDeliveryAssigned(event);
-
     }
 }

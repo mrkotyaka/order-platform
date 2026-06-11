@@ -39,7 +39,9 @@ spring:
 #      mail.smtp.auth: true
 #      mail.smtp.starttls.enable: true
 
+# FeignClient
 auth-service:
   url: http://localhost:8081
 
+# notification topics
 notification-topic: notifications.events
