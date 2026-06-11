@@ -8,6 +8,7 @@ import java.util.UUID;
 public record UserRsDto(
         UUID id,
         String login,
+        String name,
         String address,
         String email,
         String phone,

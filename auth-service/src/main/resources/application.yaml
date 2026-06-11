@@ -2,11 +2,12 @@ server:
   port: 8081
 
 spring:
+  application:
+    name: auth-service
+
   cloud:
     compatibility-verifier:
       enabled: false
-  application:
-    name: auth-service
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -21,6 +22,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   liquibase:
     enabled: false
     change-log: classpath:db/changelog/db.changelog-master.yaml
