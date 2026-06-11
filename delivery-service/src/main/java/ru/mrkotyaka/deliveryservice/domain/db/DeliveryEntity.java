@@ -32,6 +32,9 @@ public class DeliveryEntity {
     @Column(name = "eta_minutes", nullable = false)
     private Integer etaMinutes;
 
-    @Column(name = "delivery_datetime")
-    private LocalDateTime deliveryDateTime;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "delivered_at")
+    private LocalDateTime deliveredAt;
 }

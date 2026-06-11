@@ -17,7 +17,7 @@ public interface CourierRepository extends JpaRepository<CourierEntity, UUID> {
             SELECT DISTINCT c.* FROM couriers c
             LEFT JOIN deliveries d ON c.id = d.courier_id
             WHERE d.id IS NULL
-            OR (d.delivery_datetime + (d.eta_minutes || ' minutes')::interval) < :now
+            OR (d.created_at + (d.eta_minutes || ' minutes')::interval) < :now
             ORDER BY c.rating DESC
             """, nativeQuery = true)
     List<CourierEntity> findAllFree(@Param("now") LocalDateTime now);
@@ -26,7 +26,7 @@ public interface CourierRepository extends JpaRepository<CourierEntity, UUID> {
             SELECT c.* FROM couriers c
             LEFT JOIN deliveries d ON c.id = d.courier_id
             WHERE d.id IS NULL
-            OR (d.delivery_datetime + (d.eta_minutes || ' minutes')::interval) < :now
+            OR (d.created_at + (d.eta_minutes || ' minutes')::interval) < :now
             ORDER BY c.rating DESC LIMIT 1
             """, nativeQuery = true)
     Optional<CourierEntity> findOneFree(LocalDateTime now);

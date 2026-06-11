@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.deliveryservice.domain.db.*;
+import ru.mrkotyaka.deliveryservice.external.OrderHttpClient;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,6 +25,7 @@ public class DeliveryProcessor {
     private final DeliveryRepository deliveryRepository;
     private final KafkaTemplate<UUID, DeliveryAssignedEvent> kafkaTemplate;
     private final CourierProcessor courierProcessor;
+    private final OrderHttpClient orderHttpClient;
 
     @Value("${delivery-assigned-topic}")
     private String deliveryAssignedTopic;
@@ -48,7 +51,7 @@ public class DeliveryProcessor {
         entity.setOrderId(orderId);
         entity.setCourierId(courierEntity);
         entity.setEtaMinutes(ThreadLocalRandom.current().nextInt(10, 45));
-        entity.setDeliveryDateTime(LocalDateTime.now());
+        entity.setCreatedAt(LocalDateTime.now());
 
         log.info("Saved order delivery was assigned.");
 
@@ -72,10 +75,20 @@ public class DeliveryProcessor {
         });
     }
 
-    public UUID getDeliveryUserId(UUID orderId){
-        DeliveryEntity entity = deliveryRepository.findByOrderId(orderId)
+    public DeliveryEntity getDeliveryUserId(UUID orderId) {
+        return deliveryRepository.findByOrderId(orderId)
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery for order `%s` not found".formatted(orderId)));
-        return entity.getCourierId().getUserId();
+                {
+                    log.info("Delivery with orderId `{}` not found", orderId);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery for order `%s` not found".formatted(orderId));
+                });
+    }
+
+    public OrderRsDto setStatusDelivered(DeliveryEntity entity) {
+        var delivery = orderHttpClient.setStatusDelivered(entity.getOrderId());
+        entity.setDeliveredAt(delivery.deliveredAt());
+        deliveryRepository.save(entity);
+        log.info("Delivery `{}` is delivered", entity.getId());
+        return delivery;
     }
 }
