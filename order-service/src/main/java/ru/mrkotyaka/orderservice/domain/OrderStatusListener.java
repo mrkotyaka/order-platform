@@ -26,6 +26,7 @@ public class OrderStatusListener {
             case DELIVERY_ASSIGNED ->
                     "Courier %s assigned to order `%s`. Expect in %d minutes".formatted(order.getCourierName(), order.getId(), order.getEtaMinutes());
             case DELIVERED -> "Your order `%s` has been successfully delivered. Enjoy your meal!".formatted(order.getId());
+            case CANCELED -> "Your order `%s` has been successfully canceled. Glad to see you again!".formatted(order.getId());
             default -> null;
         };
 

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.annotation.KafkaListener;
+import ru.mrkotyaka.commonlibs.enums.order.CashFlow;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.deliveryservice.domain.DeliveryProcessor;
 
@@ -22,7 +23,11 @@ public class OrderPaidKafkaConsumer {
     )
     public void listen(OrderPaidEvent event) {
         log.info("Received order paid event {}", event);
-        deliveryProcessor.processOrderPaid(event);
+        if (event.cashFlow().equals(CashFlow.DEBIT)) {
+            deliveryProcessor.processOrderPaid(event);
+        } else if (event.cashFlow().equals(CashFlow.CREDIT)) {
+            deliveryProcessor.processOrderCanceled(event);
+        }
 
     }
 }

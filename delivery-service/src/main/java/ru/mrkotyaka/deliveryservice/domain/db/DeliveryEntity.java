@@ -37,4 +37,7 @@ public class DeliveryEntity {
 
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
+
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
 }

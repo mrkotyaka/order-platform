@@ -8,18 +8,20 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.enums.notification.NotificationType;
-import ru.mrkotyaka.commonlibs.dto.order.OrderRqDto;
 import ru.mrkotyaka.commonlibs.dto.order.OrderPaymentRqDto;
+import ru.mrkotyaka.commonlibs.dto.order.OrderRqDto;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
-import ru.mrkotyaka.commonlibs.enums.order.OrderStatus;
 import ru.mrkotyaka.commonlibs.dto.payment.PaymentRqDto;
 import ru.mrkotyaka.commonlibs.dto.payment.PaymentRsDto;
+import ru.mrkotyaka.commonlibs.enums.notification.NotificationType;
+import ru.mrkotyaka.commonlibs.enums.order.CashFlow;
+import ru.mrkotyaka.commonlibs.enums.order.OrderStatus;
 import ru.mrkotyaka.commonlibs.enums.payment.PaymentStatus;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
 import ru.mrkotyaka.orderservice.domain.db.*;
+import ru.mrkotyaka.orderservice.external.DeliveryHttpClient;
 import ru.mrkotyaka.orderservice.external.PaymentHttpClient;
 
 import java.math.BigDecimal;
@@ -36,6 +38,7 @@ public class OrderProcessor {
     private final OrderMapper orderMapper;
     private final ItemRepository itemRepository;
     private final PaymentHttpClient paymentHttpClient;
+    private final DeliveryHttpClient deliveryHttpClient;
     private final KafkaTemplate<UUID, OrderPaidEvent> kafkaTemplate;
     private final KafkaTemplate<UUID, NotificationEvent> notificationKafkaTemplate;
 
@@ -112,18 +115,19 @@ public class OrderProcessor {
 
     @Transactional
     public OrderRsDto processPayment(
-            UUID id,
+            UUID orderId,
             OrderPaymentRqDto request
     ) {
-        var entity = getOrderOrThrow(id);
+        var entity = getOrderOrThrow(orderId);
         if (!entity.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)) {
             throw new RuntimeException("Order status is not PENDING_PAYMENT");
         }
         var response = paymentHttpClient
-                .createPayment(PaymentRqDto.builder()
-                        .orderId(id)
+                .doPayment(PaymentRqDto.builder()
+                        .orderId(orderId)
                         .paymentMethod(request.paymentMethod())
                         .amount(entity.getTotalAmount())
+                        .cashFlow(CashFlow.DEBIT)
                         .build());
 
         var status = response.paymentStatus().equals(PaymentStatus.PAYMENT_SUCCEEDED)
@@ -134,7 +138,7 @@ public class OrderProcessor {
 
         if (status.equals(OrderStatus.PAID)) {
             log.info("Prepare to sending notification because status is {}", OrderStatus.PAID.name());
-            sendOrderPaidEvent(entity, response);
+            sendOrderPaidEvent(entity, response, CashFlow.DEBIT);
         }
         var saved = orderRepository.save(entity);
         return orderMapper.toOrderDto(saved);
@@ -142,7 +146,8 @@ public class OrderProcessor {
 
     private void sendOrderPaidEvent(
             OrderEntity order,
-            PaymentRsDto response
+            PaymentRsDto response,
+            CashFlow cashFlow
     ) {
         kafkaTemplate.send(
                 orderPaidTopic,
@@ -152,10 +157,9 @@ public class OrderProcessor {
                         .amount(order.getTotalAmount())
                         .paymentMethod(response.paymentMethod())
                         .paymentId(response.paymentId())
+                        .cashFlow(cashFlow)
                         .build()
-        ).thenAccept(result -> {
-            log.info("Order `{}` Paid event sent", order.getId());
-        });
+        ).thenAccept(result -> log.info("Order `{}` Paid event sent", order.getId()));
     }
 
     @Transactional
@@ -215,6 +219,53 @@ public class OrderProcessor {
         ).thenAccept(result ->
                 log.info("Notification event sent: userId={}, type={}", userId, notificationType)
         );
+    }
+
+    @Transactional(readOnly = true)
+    public OrderRsDto cancelOrder(UUID orderId) {
+        var entity = getOrderOrThrow(orderId);
+
+        var order = switch (entity.getOrderStatus()) {
+            case PAYMENT_FAILED ->
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order status Payment failed");
+            case CANCELED -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order status Canceled");
+            case DELIVERED -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please call our office");
+            case PENDING_PAYMENT -> {
+                entity.setOrderStatus(OrderStatus.CANCELED);
+                var saved = orderRepository.save(entity);
+                log.info("Order `{}` was cancelled", orderId);
+                yield orderMapper.toOrderDto(saved);
+            }
+            case PAID, DELIVERY_ASSIGNED -> {
+                var response = paymentHttpClient
+                        .doPayment(PaymentRqDto.builder()
+                                .orderId(orderId)
+                                .amount(entity.getTotalAmount())
+                                .cashFlow(CashFlow.CREDIT)
+                                .build());
+
+                var status = response.paymentStatus().equals(PaymentStatus.REFUNDED)
+                        ? OrderStatus.CANCELED
+                        : OrderStatus.PAYMENT_FAILED;
+                entity.setOrderStatus(status);
+
+                if (status.equals(OrderStatus.CANCELED)) {
+                    log.info("Prepare to sending notification because status is {}", OrderStatus.CANCELED.name());
+                    sendOrderPaidEvent(entity, response, CashFlow.CREDIT);
+                }
+
+                var saved = orderRepository.save(entity);
+                yield orderMapper.toOrderDto(saved);
+            }
+        };
+
+        sendNotification(
+                deliveryHttpClient.getCourierId(orderId),
+                NotificationType.DELIVERY_CANCELLED,
+                "Delivery of the order `%s` was canceled".formatted(order.id())
+        );
+
+        return order;
     }
 }
 

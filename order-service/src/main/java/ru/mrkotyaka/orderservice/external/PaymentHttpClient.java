@@ -11,6 +11,6 @@ import ru.mrkotyaka.commonlibs.dto.payment.PaymentRsDto;
         url = "${payment-service.url}")
 public interface PaymentHttpClient {
 
-    @PostMapping("/api/payments/external")
-    PaymentRsDto createPayment(@RequestBody PaymentRqDto request);
+    @PostMapping("/api/payments/external/topay")
+    PaymentRsDto doPayment(@RequestBody PaymentRqDto request);
 }

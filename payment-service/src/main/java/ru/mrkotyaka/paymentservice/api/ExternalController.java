@@ -13,16 +13,16 @@ import ru.mrkotyaka.paymentservice.domain.PaymentService;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/payments")
-public class PaymentController {
+@RequestMapping("/api/payments/external")
+public class ExternalController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/external")
-    public PaymentRsDto createPayment(
+    @PostMapping("/topay")
+    public PaymentRsDto doPayment(
             @RequestBody PaymentRqDto request
     ) {
-        log.info("Received request: paymentRequest={}", request);
+        log.info("Received request: do pay={}", request);
 
         return paymentService.makePayment(request);
     }

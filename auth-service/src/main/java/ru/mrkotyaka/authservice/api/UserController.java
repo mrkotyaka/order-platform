@@ -8,7 +8,6 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.authservice.domain.UserProcessor;
 import ru.mrkotyaka.authservice.domain.db.UserMapper;
 import ru.mrkotyaka.commonlibs.dto.auth.UserRsDto;
-import ru.mrkotyaka.commonlibs.kafka.notification.UserNotificationDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -61,19 +60,5 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this info");
         }
         return userMapper.toUserDto(user);
-    }
-
-    @GetMapping("/external/{id}")
-    public UserNotificationDto getUserForNotification(
-            @PathVariable UUID id
-    ) {
-        var user = userProcessor.getUserInfo(id);
-        return new UserNotificationDto(
-                user.getId(),
-                user.getEmail(),
-                user.getPhone(),
-                null, // pushToken пока null
-                user.getNotificationPreference()
-        );
     }
 }

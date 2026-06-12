@@ -1,6 +1,7 @@
 package ru.mrkotyaka.commonlibs.kafka.delivery;
 
 import lombok.Builder;
+import ru.mrkotyaka.commonlibs.enums.order.CashFlow;
 import ru.mrkotyaka.commonlibs.enums.payment.PaymentMethod;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ public record OrderPaidEvent(
         UUID orderId,
         UUID paymentId,
         BigDecimal amount,
-        PaymentMethod paymentMethod
+        PaymentMethod paymentMethod,
+        CashFlow cashFlow
 ) {
 }

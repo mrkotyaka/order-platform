@@ -6,4 +6,5 @@ public enum NotificationType {
     PAYMENT_FAILED,
     COURIER_ASSIGNED,
     DELIVERY_SUCCESS,
+    DELIVERY_CANCELLED
 }

@@ -69,13 +69,12 @@ public class DeliveryProcessor {
                         .courierName(courierEntity.getName())
                         .orderId(assignedDelivery.getOrderId())
                         .etaMinutes(assignedDelivery.getEtaMinutes())
+                        .canceledAt(assignedDelivery.getCanceledAt())
                         .build()
-        ).thenAccept(result -> {
-            log.info("Delivery `{}` assigned", assignedDelivery.getId());
-        });
+        ).thenAccept(result -> log.info("Delivery `{}` assigned", assignedDelivery.getId()));
     }
 
-    public DeliveryEntity getDeliveryUserId(UUID orderId) {
+    public DeliveryEntity getDelivery(UUID orderId) {
         return deliveryRepository.findByOrderId(orderId)
                 .orElseThrow(() ->
                 {
@@ -90,5 +89,16 @@ public class DeliveryProcessor {
         deliveryRepository.save(entity);
         log.info("Delivery `{}` is delivered", entity.getId());
         return delivery;
+    }
+
+    public void processOrderCanceled(OrderPaidEvent event) {
+        var orderId = event.orderId();
+        var entity = deliveryRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new  ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery for order `%s` not found".formatted(orderId)));
+
+        entity.setCanceledAt(LocalDateTime.now());
+
+        deliveryRepository.save(entity);
+        sendDeliveryAssignedEvent(entity);
     }
 }

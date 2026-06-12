@@ -86,8 +86,8 @@ public class OrderController {
         return orderProcessor.processPayment(id, request);
     }
 
-    @PostMapping("/delivered/external/{id}")
-    public OrderRsDto setStatusDelivered(@PathVariable("id") UUID orderId){
-        return orderProcessor.processDeliveredState(orderId);
+    @PostMapping("/cancel/{id}")
+    public OrderRsDto cancelOrder(@PathVariable("id") UUID orderId) {
+        return orderProcessor.cancelOrder(orderId);
     }
 }

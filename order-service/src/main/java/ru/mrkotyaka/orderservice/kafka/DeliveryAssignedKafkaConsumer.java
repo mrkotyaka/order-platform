@@ -22,6 +22,8 @@ public class DeliveryAssignedKafkaConsumer {
     )
     public void listen(DeliveryAssignedEvent event) {
         log.info("Received delivery assigned event orderId `{}`", event.orderId());
-        orderProcessor.processDeliveryAssigned(event);
+        if (event.canceledAt() == null) {
+            orderProcessor.processDeliveryAssigned(event);
+        }
     }
 }
