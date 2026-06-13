@@ -10,7 +10,6 @@ import ru.mrkotyaka.commonlibs.enums.payment.PaymentMethod;
 import ru.mrkotyaka.commonlibs.enums.payment.PaymentStatus;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 @Setter
