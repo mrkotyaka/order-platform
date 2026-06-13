@@ -47,7 +47,7 @@
 ## 🛠 REST API
 ### Gateway (:8080)
 
-**🟢 Регистрация**
+**🔑 Регистрация**
 
 ```http 
 POST http://localhost:8080/api/auth/register
@@ -64,7 +64,7 @@ Content-Type: application/json
 }
 ```
 
-**🟢 Логин**
+**✅ Логин**
 
 ```http 
 POST http://localhost:8080/api/auth/login
@@ -77,7 +77,7 @@ Content-Type: application/json
 }
 ```
 
-**🟢 Создать заказ**
+**📦 Создать заказ**
 
 ```http 
 POST http://localhost:8080/api/orders
@@ -94,13 +94,21 @@ Authorization: Bearer токен, полученный при авторизац
   ]
 }
 ```
-| Список продуктов  |
-|-------------------| 
-| bread             |
-| potato            |
-| tomato cherry     |
-| ice cream         |
 
+**📝 Создать список товаров**
+```http 
+POST http://localhost:8080/api/items
+
+Authorization: Bearer токен, полученный при авторизации
+```
+```JSON
+[
+   {
+      "name": "egg",
+      "price": 59.0
+   }
+]
+```
 
 **🔍 Найти заказ по id**
 ```http 
@@ -121,14 +129,14 @@ Authorization: Bearer токен, полученный при авторизац
 }
 ```
 
-**💳 Отменить заказ по id**
+**❌ Отменить заказ по id**
 ```http 
 POST http://localhost:8080/api/orders/cancel/{1}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
 
-**🟢 Заказ доставлен**
+**🚚 Заказ доставлен**
 
 ```http 
 POST http://localhost:8080/api/deliveries/delivered/{1}
