@@ -221,11 +221,11 @@ public class OrderProcessor {
         );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderRsDto cancelOrder(UUID orderId) {
         var entity = getOrderOrThrow(orderId);
-
-        var order = switch (entity.getOrderStatus()) {
+        var actualStatus = entity.getOrderStatus();
+        return switch (actualStatus) {
             case PAYMENT_FAILED ->
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order status Payment failed");
             case CANCELED -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order status Canceled");
@@ -234,6 +234,7 @@ public class OrderProcessor {
                 entity.setOrderStatus(OrderStatus.CANCELED);
                 var saved = orderRepository.save(entity);
                 log.info("Order `{}` was cancelled", orderId);
+                log.warn("Order `{}` was cancelled. Actual status {}", orderId, saved.getOrderStatus());
                 yield orderMapper.toOrderDto(saved);
             }
             case PAID, DELIVERY_ASSIGNED -> {
@@ -244,10 +245,14 @@ public class OrderProcessor {
                                 .cashFlow(CashFlow.CREDIT)
                                 .build());
 
+                log.warn("kilian.row: paymentStatus {}", response.paymentStatus());
+
                 var status = response.paymentStatus().equals(PaymentStatus.REFUNDED)
                         ? OrderStatus.CANCELED
                         : OrderStatus.PAYMENT_FAILED;
                 entity.setOrderStatus(status);
+
+                log.warn("kilian.row: status {}", status);
 
                 if (status.equals(OrderStatus.CANCELED)) {
                     log.info("Prepare to sending notification because status is {}", OrderStatus.CANCELED.name());
@@ -255,17 +260,20 @@ public class OrderProcessor {
                 }
 
                 var saved = orderRepository.save(entity);
+
+                if(actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED)) {
+                    sendNotification(
+                            deliveryHttpClient.getCourierId(orderId),
+                            NotificationType.DELIVERY_CANCELLED,
+                            "Dear courier! Delivery of the order `%s` was canceled".formatted(saved.getId())
+                    );
+                }
+
+                log.warn("kilian.row: orderStatus {}", saved.getOrderStatus());
+
                 yield orderMapper.toOrderDto(saved);
             }
         };
-
-        sendNotification(
-                deliveryHttpClient.getCourierId(orderId),
-                NotificationType.DELIVERY_CANCELLED,
-                "Delivery of the order `%s` was canceled".formatted(order.id())
-        );
-
-        return order;
     }
 }
 

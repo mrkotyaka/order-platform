@@ -9,6 +9,7 @@ import ru.mrkotyaka.commonlibs.dto.payment.*;
 import ru.mrkotyaka.commonlibs.enums.order.CashFlow;
 import ru.mrkotyaka.commonlibs.enums.payment.PaymentMethod;
 import ru.mrkotyaka.commonlibs.enums.payment.PaymentStatus;
+import ru.mrkotyaka.paymentservice.domain.db.PaymentEntity;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentMapper;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentRepository;
 
@@ -24,32 +25,46 @@ public class PaymentService {
 
         var found = paymentRepository.findByOrderId(request.orderId());
 
-        if (request.cashFlow().equals(CashFlow.DEBIT) && found.isPresent()) {
-            log.info("Payment request already exists for order `{}`", request.orderId());
-            return paymentMapper.toPaymentRsDto(found.get());
+        if (request.cashFlow().equals(CashFlow.DEBIT)){
+            if (found.isPresent()) {
+                log.info("Payment request already exists for order `{}`", request.orderId());
+                return paymentMapper.toPaymentRsDto(found.get());
+            }
+
+            var payment = paymentMapper.toPaymentEntity(request);
+
+            var paymentStatus = request.paymentMethod().equals(PaymentMethod.QR)
+                    ? PaymentStatus.PAYMENT_FAILED
+                    : PaymentStatus.PAYMENT_SUCCEEDED;
+
+            log.warn("kilian.row: paymentStatus {}", paymentStatus);
+
+            payment.setPaymentStatus(paymentStatus);
+
+            log.warn("kilian.row: orderId {}", payment.getOrderId());
+
+            return paymentMapper.toPaymentRsDto(paymentRepository.save(payment));
+
+        } else if (request.cashFlow().equals(CashFlow.CREDIT)){
+
+            log.warn("kilian.row: cashFlow {}", request.cashFlow());
+
+            var paymentStatus = found.get().getPaymentMethod().equals(PaymentMethod.QR)
+                    ? PaymentStatus.PAYMENT_FAILED
+                    : PaymentStatus.REFUNDED;
+
+            log.warn("kilian.row: orderId {}", paymentStatus);
+
+            var entity = new PaymentEntity();
+            entity.setOrderId(request.orderId());
+            entity.setPaymentStatus(paymentStatus);
+            entity.setPaymentMethod(found.get().getPaymentMethod());
+            entity.setAmount(request.amount().negate());
+
+            log.warn("kilian.row: payment {}", found);
+
+            return paymentMapper.toPaymentRsDto(paymentRepository.save(entity));
         }
-
-        if (request.cashFlow().equals(CashFlow.CREDIT) && found.isEmpty()) {
-            log.info("Payment request not exists for order `{}`", request.orderId());
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found");
-        }
-
-        var payment = paymentMapper.toPaymentEntity(request);
-
-        var paymentStatus = request.paymentMethod().equals(PaymentMethod.QR)
-                ? PaymentStatus.PAYMENT_FAILED
-                : request.cashFlow().equals(CashFlow.DEBIT)
-                  ? PaymentStatus.PAYMENT_SUCCEEDED
-                  : request.cashFlow().equals(CashFlow.CREDIT)
-                    ? PaymentStatus.REFUNDED
-                    : null;
-        var amount = request.cashFlow().equals(CashFlow.DEBIT)
-                ? request.amount()
-                : request.amount().negate();
-
-        payment.setPaymentStatus(paymentStatus);
-        payment.setAmount(amount);
-
-        return paymentMapper.toPaymentRsDto(paymentRepository.save(payment));
+        return null;
     }
 }

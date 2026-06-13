@@ -10,6 +10,7 @@ import ru.mrkotyaka.commonlibs.enums.payment.PaymentMethod;
 import ru.mrkotyaka.commonlibs.enums.payment.PaymentStatus;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 @Setter
@@ -25,7 +26,7 @@ public class PaymentEntity {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name = "order_id", nullable = false, unique = true)
+    @Column(name = "order_id", nullable = false)
     private UUID orderId;
 
     @Column(name = "amount")
@@ -38,4 +39,15 @@ public class PaymentEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
+
+    @Override
+    public String toString() {
+        return "PaymentEntity{" +
+                "id=" + id +
+                ", orderId=" + orderId +
+                ", amount=" + amount +
+                ", paymentStatus=" + paymentStatus +
+                ", paymentMethod=" + paymentMethod +
+                '}';
+    }
 }

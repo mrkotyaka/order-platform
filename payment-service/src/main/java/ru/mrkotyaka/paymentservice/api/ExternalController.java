@@ -23,7 +23,6 @@ public class ExternalController {
             @RequestBody PaymentRqDto request
     ) {
         log.info("Received request: do pay={}", request);
-
         return paymentService.makePayment(request);
     }
 }
