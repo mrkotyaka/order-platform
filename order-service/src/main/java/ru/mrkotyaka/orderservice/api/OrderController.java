@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRqDto;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
 import ru.mrkotyaka.commonlibs.dto.order.OrderPaymentRqDto;
+import ru.mrkotyaka.commonlibs.enums.order.OrderStatus;
 import ru.mrkotyaka.orderservice.domain.OrderProcessor;
 import ru.mrkotyaka.orderservice.domain.db.OrderMapper;
 
@@ -59,6 +60,20 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to getting all orders");
         }
         return orderProcessor.getAllOrders();
+    }
+
+
+
+    @GetMapping("/status")
+    public List<OrderRsDto> getOrderByStatus(
+            @RequestHeader("X-User-Roles") String authUserRole,
+            @RequestParam OrderStatus orderStatus) {
+        log.info("Retrieving `{}` orders", orderStatus);
+        if (!authUserRole.equals("ADMIN")) {
+            log.warn("You are not is admin. Access denied to getting orders");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to getting orders");
+        }
+        return orderProcessor.getOrderByStatus(orderStatus);
     }
 
     @GetMapping("/pendingpayment")

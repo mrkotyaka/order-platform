@@ -227,7 +227,8 @@ public class OrderProcessor {
         var actualStatus = entity.getOrderStatus();
 
         if(actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED) && !isPossibleCancel(orderId)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not cancel order. Delivery already process");
+            log.info("You can not cancel order `{}`. Delivery already process",orderId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not cancel order `%s`. Delivery already process".formatted(orderId));
         }
 
         return switch (actualStatus) {
@@ -272,7 +273,8 @@ public class OrderProcessor {
         };
     }
 
-    private boolean isPossibleCancel(UUID orderId) {
+    @Transactional(readOnly = true)
+    public boolean isPossibleCancel(UUID orderId) {
         var entity = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not find".formatted(orderId)));
 
@@ -280,6 +282,16 @@ public class OrderProcessor {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(randomMinutes);
 
         return !entity.getCreatedAt().isBefore(threshold);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderRsDto> getOrderByStatus(OrderStatus orderStatus) {
+        var ordersDto = new ArrayList<OrderRsDto>();
+        var entities = orderRepository.findAllByOrderStatus(orderStatus);
+        for (var entity : entities) {
+            ordersDto.add(orderMapper.toOrderDto(entity));
+        }
+        return ordersDto;
     }
 }
 
