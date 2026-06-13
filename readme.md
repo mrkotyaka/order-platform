@@ -121,6 +121,20 @@ Authorization: Bearer токен, полученный при авторизац
 }
 ```
 
+**💳 Отменить заказ по id**
+```http 
+POST http://localhost:8080/api/orders/cancel/{1}
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🟢 Заказ доставлен**
+
+```http 
+POST http://localhost:8080/api/deliveries/delivered/{1}
+Content-Type: application/json
+```
+
 **🔍 Найти все товары**
 ```http 
 GET http://localhost:8080/api/items
@@ -169,6 +183,22 @@ GET http://localhost:8080/api/customers/{1}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
+
+**🔍 Найти заказы по статусу**
+```http 
+GET http://localhost:8080/api/orders/status?orderStatus=DELIVERY_ASSIGNED
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+| Статусы           |
+|-------------------|
+| PENDING_PAYMENT   |
+| PAID              |
+| PAYMENT_FAILED    |
+| DELIVERY_ASSIGNED |
+| DELIVERED         |
+| CANCELED          |
 
 ## ⚙️ Технологии
 - Runtime: Java 21, Spring Boot 3.5.7
@@ -235,12 +265,12 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
 - ✔️ check DELIVERY_ASSIGNED for delivered
 - ✔️ add methods for create records couriers and items
 - ✔️ implementation auth for courier into auth-service and transfer common data into delivery.courierEntity via Kafka for assign.
-- update ddl for liquibase
-- add cancel
-- add expired
-- fix assign free courier
+- ✔️ transfer external rests
+- ✔️ notification-service. Sending email to couriers.
+- ✔️ add rest cancel
+- ✔️ add rest by status
+- ✔️ update ddl for liquibase
+- order picking simulation, can not cancel
+- add customers description to order
 - add reviews-service (feedback). Different rating for delivery, system and products
-- cart-service (user-service, logging, create new)
-- catalog-service (menu-service)
-- Later. notification-service. Sending email to couriers. 
 - Later. close the direct method call. Stay only 8080 in docker in the end
