@@ -13,4 +13,4 @@ create table if not exists users
     password varchar(255) not null,
     phone varchar(255),
     role varchar(255) constraint users_role_check check ((role)::text = ANY ((ARRAY ['ADMIN'::character varying, 'CUSTOMER'::character varying, 'COURIER'::character varying, 'MANAGER'::character varying])::text[]))
-);
+    );
