@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -137,7 +138,6 @@ public class OrderProcessor {
         entity.setOrderStatus(status);
 
         if (status.equals(OrderStatus.PAID)) {
-            log.info("Prepare to sending notification because status is {}", OrderStatus.PAID.name());
             sendOrderPaidEvent(entity, response, CashFlow.DEBIT);
         }
         var saved = orderRepository.save(entity);
@@ -225,6 +225,11 @@ public class OrderProcessor {
     public OrderRsDto cancelOrder(UUID orderId) {
         var entity = getOrderOrThrow(orderId);
         var actualStatus = entity.getOrderStatus();
+
+        if(actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED) && !isPossibleCancel(orderId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not cancel order. Delivery already process");
+        }
+
         return switch (actualStatus) {
             case PAYMENT_FAILED ->
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order status Payment failed");
@@ -234,7 +239,6 @@ public class OrderProcessor {
                 entity.setOrderStatus(OrderStatus.CANCELED);
                 var saved = orderRepository.save(entity);
                 log.info("Order `{}` was cancelled", orderId);
-                log.warn("Order `{}` was cancelled. Actual status {}", orderId, saved.getOrderStatus());
                 yield orderMapper.toOrderDto(saved);
             }
             case PAID, DELIVERY_ASSIGNED -> {
@@ -245,17 +249,12 @@ public class OrderProcessor {
                                 .cashFlow(CashFlow.CREDIT)
                                 .build());
 
-                log.warn("kilian.row: paymentStatus {}", response.paymentStatus());
-
                 var status = response.paymentStatus().equals(PaymentStatus.REFUNDED)
                         ? OrderStatus.CANCELED
                         : OrderStatus.PAYMENT_FAILED;
                 entity.setOrderStatus(status);
 
-                log.warn("kilian.row: status {}", status);
-
                 if (status.equals(OrderStatus.CANCELED)) {
-                    log.info("Prepare to sending notification because status is {}", OrderStatus.CANCELED.name());
                     sendOrderPaidEvent(entity, response, CashFlow.CREDIT);
                 }
 
@@ -268,12 +267,19 @@ public class OrderProcessor {
                             "Dear courier! Delivery of the order `%s` was canceled".formatted(saved.getId())
                     );
                 }
-
-                log.warn("kilian.row: orderStatus {}", saved.getOrderStatus());
-
                 yield orderMapper.toOrderDto(saved);
             }
         };
+    }
+
+    private boolean isPossibleCancel(UUID orderId) {
+        var entity = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not find".formatted(orderId)));
+
+        int randomMinutes = ThreadLocalRandom.current().nextInt(10, 20); // order picking simulation
+        LocalDateTime threshold = LocalDateTime.now().minusMinutes(randomMinutes);
+
+        return !entity.getCreatedAt().isBefore(threshold);
     }
 }
 

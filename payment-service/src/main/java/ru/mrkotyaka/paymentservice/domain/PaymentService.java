@@ -2,6 +2,7 @@ package ru.mrkotyaka.paymentservice.domain;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import ru.mrkotyaka.commonlibs.dto.payment.PaymentRqDto;
 import ru.mrkotyaka.commonlibs.dto.payment.PaymentRsDto;
@@ -11,6 +12,8 @@ import ru.mrkotyaka.commonlibs.enums.payment.PaymentStatus;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentEntity;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentMapper;
 import ru.mrkotyaka.paymentservice.domain.db.PaymentRepository;
+
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -48,23 +51,30 @@ public class PaymentService {
 
             log.warn("kilian.row: cashFlow {}", request.cashFlow());
 
-            PaymentStatus paymentStatus;
-            if (found.isPresent()) {
-                paymentStatus = found.get().getPaymentMethod().equals(PaymentMethod.QR)
-                        ? PaymentStatus.PAYMENT_FAILED
-                        : PaymentStatus.REFUNDED;
-            } else {
-                throw new RuntimeException("Payment not found");
-            }
-
-            var entity = new PaymentEntity();
-            entity.setOrderId(request.orderId());
-            entity.setPaymentStatus(paymentStatus);
-            entity.setPaymentMethod(found.get().getPaymentMethod());
-            entity.setAmount(request.amount().negate());
+            var entity = getPaymentEntity(request, found);
 
             return paymentMapper.toPaymentRsDto(paymentRepository.save(entity));
         }
         return null;
+    }
+
+    @NonNull
+    private static PaymentEntity getPaymentEntity(PaymentRqDto request, Optional<PaymentEntity> found) {
+        PaymentStatus paymentStatus;
+
+        if (found.isPresent()) {
+            paymentStatus = found.get().getPaymentMethod().equals(PaymentMethod.QR)
+                    ? PaymentStatus.PAYMENT_FAILED
+                    : PaymentStatus.REFUNDED;
+        } else {
+            throw new RuntimeException("Payment not found");
+        }
+
+        var entity = new PaymentEntity();
+        entity.setOrderId(request.orderId());
+        entity.setPaymentStatus(paymentStatus);
+        entity.setPaymentMethod(found.get().getPaymentMethod());
+        entity.setAmount(request.amount().negate());
+        return entity;
     }
 }

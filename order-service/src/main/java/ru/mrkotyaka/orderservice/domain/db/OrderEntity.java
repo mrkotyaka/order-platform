@@ -43,6 +43,9 @@ public class OrderEntity {
     @Column(name = "eta_minutes")
     private Integer etaMinutes;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
