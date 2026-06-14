@@ -1,9 +1,9 @@
 server:
-  port: 8089
+  port: 8091
 
 spring:
   application:
-    name: delivery-service
+    name: review-service
 
   cloud:
     compatibility-verifier:
@@ -13,12 +13,13 @@ spring:
     driver-class-name: org.postgresql.Driver
     password: ${POSTGRES_PASSWORD:postgres}
     username: ${POSTGRES_USER:postgres}
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_DELIVERIES:deliveries_db}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_ORDERS:review_db}
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
 
   liquibase:
     enabled: false
@@ -27,9 +28,7 @@ spring:
 
   kafka:
     consumer:
-      group-id: delivery-service-group
-      properties:
-        spring.json.trusted.packages: "ru.mrkotyaka.commonlibs.*"
+      group-id: review-service-group
     bootstrap-servers: localhost:9092
 
 # FeignClient
@@ -37,9 +36,4 @@ order-service:
   url: http://localhost:8087
 
 # exchange data topics
-order-paid-topic: order.events
-delivery-assigned-topic: delivery.events
 review-topic: review.events
-
-# notification topics
-# notification-topic: notifications.events

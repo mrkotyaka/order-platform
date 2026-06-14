@@ -13,13 +13,13 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/users/external")
+@RequestMapping("/api/external")
 @RequiredArgsConstructor
 public class ExternalController {
 
     private final UserProcessor userProcessor;
 
-    @GetMapping("/{id}")
+    @GetMapping("/users/{id}")
     public UserNotificationDto getUserForNotification(
             @PathVariable UUID id
     ) {

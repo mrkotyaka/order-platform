@@ -13,12 +13,12 @@ import ru.mrkotyaka.paymentservice.domain.PaymentService;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/payments/external")
+@RequestMapping("/api/external")
 public class ExternalController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/topay")
+    @PostMapping("/payments/topay")
     public PaymentRsDto doPayment(
             @RequestBody PaymentRqDto request
     ) {

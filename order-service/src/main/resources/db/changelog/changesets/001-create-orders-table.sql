@@ -1,4 +1,4 @@
--- 001-create-orders-table.sql
+-- 001-create-review-table.sql
 --liquibase formatted sql
 
 --changeset kilianrow:1

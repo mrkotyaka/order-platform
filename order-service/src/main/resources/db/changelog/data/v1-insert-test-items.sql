@@ -1,4 +1,4 @@
--- v1-insert-test-items.sql
+-- v1-insert-test-review.sql
 --liquibase formatted sql
 
 --changeset kilianrow:1

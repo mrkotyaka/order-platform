@@ -6,19 +6,31 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.mrkotyaka.commonlibs.dto.courier.CourierRqDto;
+import ru.mrkotyaka.commonlibs.dto.courier.CourierRsDto;
+import ru.mrkotyaka.deliveryservice.domain.CourierProcessor;
 import ru.mrkotyaka.deliveryservice.domain.DeliveryProcessor;
 
 import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/deliveries/external")
+@RequestMapping("/api/external")
 public class ExternalController {
 
     private final DeliveryProcessor deliveryProcessor;
+    private final CourierProcessor courierProcessor;
 
-    @PostMapping("/getcourier")
-    UUID getCourierId(@RequestBody UUID orderId){
+    @PostMapping("/deliveries/getcourier")
+    public UUID getCourierId(@RequestBody UUID orderId) {
         return deliveryProcessor.getDelivery(orderId).getCourierId().getUserId();
+    }
+
+    @PostMapping("/couriers/create")
+    public CourierRsDto createCourier(@RequestBody CourierRqDto request) {
+        log.info("Creating a new courier from external request");
+        log.info("Request details - userId: {}, name: {}", request.userId(), request.name());
+        return courierProcessor.createCourier(request);
     }
 }

@@ -293,5 +293,10 @@ public class OrderProcessor {
         }
         return ordersDto;
     }
+
+    @Transactional(readOnly = true)
+    public boolean canForReview(UUID userId, UUID orderId) {
+        return orderRepository.existsByOrderIdAndCustomerId(userId, orderId);
+    }
 }
 

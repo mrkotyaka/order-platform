@@ -11,6 +11,6 @@ import java.util.UUID;
         name = "order-service",
         url = "${order-service.url}")
 public interface OrderHttpClient {
-    @PostMapping("/api/orders/external/delivered/{id}")
+    @PostMapping("/api/external/orders/delivered/{id}")
     OrderRsDto setStatusDelivered(@PathVariable("id") UUID orderId);
 }

@@ -11,6 +11,6 @@ import ru.mrkotyaka.commonlibs.dto.courier.CourierRsDto;
         url = "${delivery-service.url}")
 public interface DeliveryHttpClient {
 
-    @PostMapping("/api/couriers/external")
+    @PostMapping("/api/external/couriers/create")
     CourierRsDto createCourier(@RequestBody CourierRqDto request);
 }

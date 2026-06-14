@@ -12,6 +12,6 @@ import java.util.UUID;
         url = "${auth-service.url}")
 public interface UserHttpClient {
 
-    @GetMapping("/api/users/external/{id}")
+    @GetMapping("/api/external/users/{id}")
     UserNotificationDto getById(@PathVariable UUID id);
 }

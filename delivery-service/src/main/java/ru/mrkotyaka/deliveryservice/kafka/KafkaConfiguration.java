@@ -15,6 +15,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import ru.mrkotyaka.commonlibs.dto.review.ReviewRsDto;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 
@@ -52,6 +53,27 @@ public class KafkaConfiguration {
     public KafkaListenerContainerFactory<?> orderPaidEventListenerFactory(ConsumerFactory<UUID, OrderPaidEvent> orderPaidEventConsumerFactory) {
         var factory = new ConcurrentKafkaListenerContainerFactory<UUID, OrderPaidEvent>();
         factory.setConsumerFactory(orderPaidEventConsumerFactory);
+        factory.setBatchListener(false);
+        return factory;
+    }
+
+    // Для CourierRatingUpdater
+    @Bean
+    public ConsumerFactory<UUID, ReviewRsDto> reviewEventConsumerFactory(KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties(null);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, UUIDDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, ReviewRsDto.class.getName());
+        return new DefaultKafkaConsumerFactory<>(props);
+    }
+
+    // Для CourierRatingUpdater
+    @Bean
+    public KafkaListenerContainerFactory<?> reviewEventListenerFactory(
+            ConsumerFactory<UUID, ReviewRsDto> reviewEventConsumerFactory) {
+        var factory = new ConcurrentKafkaListenerContainerFactory<UUID, ReviewRsDto>();
+        factory.setConsumerFactory(reviewEventConsumerFactory);
         factory.setBatchListener(false);
         return factory;
     }

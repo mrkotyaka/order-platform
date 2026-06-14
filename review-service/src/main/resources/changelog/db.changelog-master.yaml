@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changesets/001-create-review-table.sql
+  - include:
+      file: db/changelog/data/v1-insert-test-review.sql
+      context: dev
