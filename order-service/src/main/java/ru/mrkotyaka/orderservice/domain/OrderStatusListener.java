@@ -9,6 +9,7 @@ import ru.mrkotyaka.orderservice.domain.db.OrderEntity;
 
 @Component
 public class OrderStatusListener {
+
     private static OrderProcessor orderProcessor;
 
     @Autowired

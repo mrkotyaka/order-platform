@@ -65,6 +65,7 @@ public class OrderProcessor {
                         saved.getTotalAmount()
                 )
         );
+
         log.info("Order `{}` was created successfully", saved.getId());
         return orderMapper.toOrderDto(saved);
     }
@@ -81,9 +82,11 @@ public class OrderProcessor {
     public List<OrderRsDto> getAllOrders() {
         List<OrderRsDto> allOrdersDTO = new ArrayList<>();
         var allOrders = orderRepository.findAll();
+
         for (var order : allOrders) {
             allOrdersDTO.add(orderMapper.toOrderDto(order));
         }
+
         return allOrdersDTO;
     }
 
@@ -91,16 +94,20 @@ public class OrderProcessor {
     public List<OrderRsDto> getAllPendingPaymentOrders() {
         List<OrderRsDto> allPendingPaymentOrdersDTO = new ArrayList<>();
         var allOrders = orderRepository.findAllPendingPayment();
+
         for (var order : allOrders) {
             allPendingPaymentOrdersDTO.add(orderMapper.toOrderDto(order));
         }
+
         return allPendingPaymentOrdersDTO;
     }
 
 
     private void calcPricingForOrder(OrderEntity orderEntity) {
         BigDecimal totalPrice = BigDecimal.ZERO;
+
         for (OrderItemEntity item : orderEntity.getItems()) {
+
             if (!itemRepository.existsByName(item.getName())) {
                 log.info("Item `{}` not found. Please use items list", item.getName());
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -110,6 +117,7 @@ public class OrderProcessor {
                 totalPrice = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())).add(totalPrice);
             }
         }
+
         log.info("The calculation is over");
         orderEntity.setTotalAmount(totalPrice);
     }
@@ -120,9 +128,11 @@ public class OrderProcessor {
             OrderPaymentRqDto request
     ) {
         var entity = getOrderById(orderId);
+
         if (!entity.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)) {
             throw new RuntimeException("Order status is not PENDING_PAYMENT");
         }
+
         var response = paymentHttpClient
                 .doPayment(PaymentRqDto.builder()
                         .orderId(orderId)
@@ -140,6 +150,7 @@ public class OrderProcessor {
         if (status.equals(OrderStatus.PAID)) {
             sendOrderPaidEvent(entity, response, CashFlow.DEBIT);
         }
+
         var saved = orderRepository.save(entity);
         return orderMapper.toOrderDto(saved);
     }
@@ -217,8 +228,7 @@ public class OrderProcessor {
                 userId,
                 new NotificationEvent(userId, notificationType, message)
         ).thenAccept(result ->
-                log.info("Notification event sent: userId={}, type={}", userId, notificationType)
-        );
+                log.info("Notification event sent: userId={}, type={}", userId, notificationType));
     }
 
     @Transactional
@@ -289,6 +299,7 @@ public class OrderProcessor {
     public List<OrderRsDto> getOrderByStatus(OrderStatus orderStatus) {
         var ordersDto = new ArrayList<OrderRsDto>();
         var entities = orderRepository.findAllByOrderStatus(orderStatus);
+
         for (var entity : entities) {
             ordersDto.add(orderMapper.toOrderDto(entity));
         }
