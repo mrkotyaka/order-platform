@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public record OrderRsDto(
-        UUID id,
+        UUID orderId,
         UUID customerId,
         String address,
         BigDecimal totalAmount,

@@ -57,7 +57,7 @@ public class OrderItemEntity {
     @Override
     public String toString() {
         return "OrderItemEntity{" +
-                "id=" + id +
+                "reviewId=" + id +
 //                ", orderId=" + orderId +
                 ", name='" + name + '\'' +
                 ", quantity=" + quantity +

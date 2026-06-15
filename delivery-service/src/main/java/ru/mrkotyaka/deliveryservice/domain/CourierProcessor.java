@@ -37,7 +37,7 @@ public class CourierProcessor {
         var courierEntityOpt = courierRepository.findById(id);
         return courierEntityOpt
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Courier with id `%s` not found".formatted(id)));
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Courier with reviewId `%s` not found".formatted(id)));
     }
 
     private CourierEntity getCourierByUserIdOrThrow(UUID userId) {

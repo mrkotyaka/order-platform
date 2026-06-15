@@ -29,7 +29,7 @@ public class NotificationProcessor {
             var user = userHttpClient.getById(event.userId());
 
             if (user == null) {
-                log.error("Recipient with id='{}' not found", event.userId());
+                log.error("Recipient with reviewId='{}' not found", event.userId());
                 return;
             }
 
@@ -44,7 +44,7 @@ public class NotificationProcessor {
                 case PUSH -> pushSender.send(user.pushToken(), event.message());
             }
         } catch (Exception e) {
-            log.error("Failed to send notification: recipient id={}, error={}",
+            log.error("Failed to send notification: recipient reviewId={}, error={}",
                     event.userId(), e.getMessage());
         }
     }

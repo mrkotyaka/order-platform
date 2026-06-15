@@ -50,12 +50,12 @@ public class UserController {
             @RequestHeader("X-User-Id") UUID authUserId,
             @RequestHeader("X-User-Roles") String authUserRole
     ) {
-        log.info("Retrieving users info by id={}", id);
+        log.info("Retrieving users info by reviewId={}", id);
 
         var user = userProcessor.getUserInfo(id);
 
         if (!user.getId().equals(authUserId) && authUserRole.equals("CUSTOMER")) {
-            log.warn("User id=`{}` tried to get info about user id=`{}`",
+            log.warn("User reviewId=`{}` tried to get info about user reviewId=`{}`",
                     authUserId, user.getId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this info");
         }

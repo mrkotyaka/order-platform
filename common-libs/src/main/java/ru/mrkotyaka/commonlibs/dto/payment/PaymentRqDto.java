@@ -10,8 +10,8 @@ import java.util.UUID;
 @Builder
 public record PaymentRqDto(
         UUID orderId,
-        PaymentMethod paymentMethod,
         BigDecimal amount,
+        PaymentMethod paymentMethod,
         CashFlow cashFlow
 ) {
 }

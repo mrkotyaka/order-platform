@@ -66,7 +66,7 @@ public class OrderEntity {
                 ", totalAmount=" + totalAmount +
                 ", address='" + address + '\'' +
                 ", customerId=" + customerId +
-                ", id=" + id +
+                ", reviewId=" + id +
                 '}';
     }
 }
