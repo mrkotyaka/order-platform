@@ -4,7 +4,7 @@
 --changeset kilianrow:1
 -- create table if not exists orders
 -- (
---     id uuid not null primary key,
+--     reviewId uuid not null primary key,
 --     address varchar(255) not null,
 --     courier_name varchar(255),
 --     customer_id uuid,
@@ -18,7 +18,7 @@
 -- --changeset kilianrow:2
 -- create table if not exists order_items
 -- (
---     id uuid not null primary key,
+--     reviewId uuid not null primary key,
 --     name varchar(255),
 --     price_at_purchase numeric(38, 2),
 --     quantity integer,
@@ -28,7 +28,7 @@
 -- --changeset kilianrow:3
 -- create table if not exists items
 -- (
---     id uuid not null primary key,
+--     reviewId uuid not null primary key,
 --     name varchar(255) not null,
 --     price double precision
 -- );

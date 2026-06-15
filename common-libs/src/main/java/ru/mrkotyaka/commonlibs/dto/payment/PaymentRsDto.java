@@ -8,8 +8,9 @@ import java.util.UUID;
 
 public record PaymentRsDto(
         UUID paymentId,
-        PaymentStatus paymentStatus,
         UUID orderId,
+        BigDecimal amount,
         PaymentMethod paymentMethod,
-        BigDecimal amount) {
+        PaymentStatus paymentStatus
+        ) {
 }

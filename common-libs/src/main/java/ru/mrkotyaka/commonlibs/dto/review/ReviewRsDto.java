@@ -6,9 +6,9 @@ import java.util.UUID;
 
 @Builder
 public record ReviewRsDto(
-        UUID id,
-        UUID userId,
+        UUID reviewId,
         UUID orderId,
+        UUID userId,
         int orderRating,
         int courierRating,
         int productRating,

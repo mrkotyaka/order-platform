@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record CourierRsDto(
-        UUID id,
+        UUID courierId,
         UUID userId,
         String name,
         BigDecimal rating,

@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record DeliveryRsDto(
-        UUID id,
+        UUID deliveryId,
         UUID orderId,
-        LocalDateTime createdAt,
         Integer etaMinutes,
+        LocalDateTime createdAt,
         LocalDateTime deliveredAt,
         LocalDateTime canceledAt
 ) {

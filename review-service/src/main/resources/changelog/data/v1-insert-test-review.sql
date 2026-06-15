@@ -2,7 +2,7 @@
 --liquibase formatted sql
 
 --changeset kilianrow:1
--- insert into items (id, name, price)
+-- insert into items (reviewId, name, price)
 -- values  ('685d4b4e-5ab3-4ed8-b0f6-484035119b24', 'banana', 100),
 --         ('c16351af-edf6-4b83-8b52-f9e46797463a', 'apple', 90),
 --         ('9b5f5f58-68fc-489c-abdc-a5caa849fadc', 'grape', 80),

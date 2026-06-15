@@ -6,7 +6,7 @@ import ru.mrkotyaka.commonlibs.enums.auth.UserRoles;
 import java.util.UUID;
 
 public record UserRsDto(
-        UUID id,
+        UUID userId,
         String login,
         String name,
         String address,

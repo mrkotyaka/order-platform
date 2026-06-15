@@ -42,7 +42,7 @@ public class PaymentEntity {
     @Override
     public String toString() {
         return "PaymentEntity{" +
-                "id=" + id +
+                "reviewId=" + id +
                 ", orderId=" + orderId +
                 ", amount=" + amount +
                 ", paymentStatus=" + paymentStatus +
