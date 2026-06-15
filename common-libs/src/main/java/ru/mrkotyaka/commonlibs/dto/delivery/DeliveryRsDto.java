@@ -8,6 +8,7 @@ public record DeliveryRsDto(
         UUID orderId,
         LocalDateTime createdAt,
         Integer etaMinutes,
-        LocalDateTime deliveredAt
+        LocalDateTime deliveredAt,
+        LocalDateTime canceledAt
 ) {
 }

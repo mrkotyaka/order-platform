@@ -70,11 +70,11 @@ public class OrderProcessor {
     }
 
     @Transactional(readOnly = true)
-    public OrderEntity getOrderOrThrow(UUID id) {
-        var order = orderRepository.findWithItemsById(id);
+    public OrderEntity getOrderById(UUID orderId) {
+        var order = orderRepository.findOrderById(orderId);
         return order
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not found".formatted(id)));
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not found".formatted(orderId)));
     }
 
     @Transactional(readOnly = true)
@@ -119,7 +119,7 @@ public class OrderProcessor {
             UUID orderId,
             OrderPaymentRqDto request
     ) {
-        var entity = getOrderOrThrow(orderId);
+        var entity = getOrderById(orderId);
         if (!entity.getOrderStatus().equals(OrderStatus.PENDING_PAYMENT)) {
             throw new RuntimeException("Order status is not PENDING_PAYMENT");
         }
@@ -164,7 +164,7 @@ public class OrderProcessor {
 
     @Transactional
     public void processDeliveryAssigned(DeliveryAssignedEvent event) {
-        var order = getOrderOrThrow(event.orderId());
+        var order = getOrderById(event.orderId());
 
         if (!order.getOrderStatus().equals(OrderStatus.PAID)) {
             processIncorrectDeliveryState(order);
@@ -223,11 +223,12 @@ public class OrderProcessor {
 
     @Transactional
     public OrderRsDto cancelOrder(UUID orderId) {
-        var entity = getOrderOrThrow(orderId);
+        var entity = getOrderById(orderId);
         var actualStatus = entity.getOrderStatus();
+        log.info("actualStatus={}", actualStatus);
 
-        if(actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED) && !isPossibleCancel(orderId)) {
-            log.info("You can not cancel order `{}`. Delivery already process",orderId);
+        if (actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED) && !isPossibleCancel(orderId)) {
+            log.info("You can not cancel order `{}`. Delivery already process", orderId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not cancel order `%s`. Delivery already process".formatted(orderId));
         }
 
@@ -261,7 +262,7 @@ public class OrderProcessor {
 
                 var saved = orderRepository.save(entity);
 
-                if(actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED)) {
+                if (actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED)) {
                     sendNotification(
                             deliveryHttpClient.getCourierId(orderId),
                             NotificationType.DELIVERY_CANCELLED,
@@ -296,6 +297,7 @@ public class OrderProcessor {
 
     @Transactional(readOnly = true)
     public boolean canForReview(UUID userId, UUID orderId) {
+        log.info("existsByOrderIdAndCustomerId: userId={}, orderId={}", userId, orderId);
         return orderRepository.existsByOrderIdAndCustomerId(userId, orderId);
     }
 }

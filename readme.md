@@ -47,6 +47,9 @@
 ## 🛠 REST API
 ### Gateway (:8080)
 
+<details>
+<summary> Регистрация и авторизация </summary>
+
 **🔑 Регистрация**
 
 ```http 
@@ -77,6 +80,59 @@ Content-Type: application/json
 }
 ```
 
+**🔍 Найти всех клиентов**
+```http 
+GET http://localhost:8080/api/customers
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🔍 Найти инфо по текущему пользователю**
+```http 
+GET http://localhost:8080/api/customers/whoami
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🔍 Найти инфо по id клиента**
+```http 
+GET http://localhost:8080/api/customers/{userId}
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+</details>
+
+<details>
+<summary> Товары </summary>
+
+**📝 Создать список товаров**
+```http 
+POST http://localhost:8080/api/items
+
+Authorization: Bearer токен, полученный при авторизации
+```
+```JSON
+[
+   {
+      "name": "продукт",
+      "price": double
+   }
+]
+```
+
+**🔍 Найти все товары**
+```http 
+GET http://localhost:8080/api/items
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+</details>
+
+<details>
+<summary> Заказы </summary>
+
 **📦 Создать заказ**
 
 ```http 
@@ -89,70 +145,40 @@ Authorization: Bearer токен, полученный при авторизац
 {
   "address": "адрес доставки",
   "items": [
-    { "quantity": 2, "name": "продукт" },
-    { "quantity": 6, "name": "продукт" }
+    { 
+       "quantity": int,
+       "name": "продукт"
+    },
+    { 
+       "quantity": int,
+       "name": "продукт"
+    }
   ]
 }
 ```
 
-**📝 Создать список товаров**
-```http 
-POST http://localhost:8080/api/items
-
-Authorization: Bearer токен, полученный при авторизации
-```
-```JSON
-[
-   {
-      "name": "egg",
-      "price": 59.0
-   }
-]
-```
-
 **🔍 Найти заказ по id**
 ```http 
-GET http://localhost:8080/api/orders/{1}
+GET http://localhost:8080/api/orders/{orderId}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
 
 **💳 Оплатить заказ по id**
 ```http 
-POST http://localhost:8080/api/orders/pay/{1}
+POST http://localhost:8080/api/orders/pay/{orderId}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
 ```JSON
 {
-   "paymentMethod": "CARD"
+   "paymentMethod": "CARD/QR/YANDEX_SPLIT"
 }
 ```
 
 **❌ Отменить заказ по id**
 ```http 
-POST http://localhost:8080/api/orders/cancel/{1}
-
-Authorization: Bearer токен, полученный при авторизации
-```
-
-**🚚 Заказ доставлен**
-
-```http 
-POST http://localhost:8080/api/deliveries/delivered/{1}
-Content-Type: application/json
-```
-
-**🔍 Найти все товары**
-```http 
-GET http://localhost:8080/api/items
-
-Authorization: Bearer токен, полученный при авторизации
-```
-
-**🔍 Найти всех клиентов**
-```http 
-GET http://localhost:8080/api/customers
+POST http://localhost:8080/api/orders/cancel/{orderId}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
@@ -167,27 +193,6 @@ Authorization: Bearer токен, полученный при авторизац
 **🔍 Найти все заказы, ожидающие оплаты**
 ```http 
 GET http://localhost:8080/api/orders/pendingpayment
-
-Authorization: Bearer токен, полученный при авторизации
-```
-
-**🔍 Найти всех свободных курьеров**
-```http 
-GET http://localhost:8080/api/couriers
-
-Authorization: Bearer токен, полученный при авторизации
-```
-
-**🔍 Найти инфо по текущему клиенту**
-```http 
-GET http://localhost:8080/api/customers/whoami
-
-Authorization: Bearer токен, полученный при авторизации
-```
-
-**🔍 Найти инфо по id клиента**
-```http 
-GET http://localhost:8080/api/customers/{1}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
@@ -207,6 +212,72 @@ Authorization: Bearer токен, полученный при авторизац
 | DELIVERY_ASSIGNED |
 | DELIVERED         |
 | CANCELED          |
+
+
+</details>
+
+<details>
+<summary> Доставка </summary>
+
+**🚚 Заказ доставлен**
+
+```http 
+POST http://localhost:8080/api/deliveries/delivered/{1}
+Content-Type: application/json
+```
+
+</details>
+
+<details>
+<summary> Курьеры </summary>
+
+**🔍 Найти всех свободных курьеров**
+```http 
+GET http://localhost:8080/api/couriers
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+</details>
+
+<details>
+<summary> Отзывы </summary>
+
+**💬 Создать отзыв**
+
+```http 
+POST http://localhost:8080/api/reviews
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+```JSON
+{
+   "orderId": "ordedrId",
+   "orderRating": int (от 1 до 5),
+   "courierRating": int (от 1 до 5),
+   "productRating": int (от 1 до 5),
+   "comment": "комментарий" (от 1 до 300 символов)
+}
+```
+
+**🔍 Найти все отзывы**
+
+```http 
+GET http://localhost:8080/api/reviews
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🔍 Найти отзыв по reviewId**
+
+```http 
+GET http://localhost:8080/api/reviews/{reviewId}
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+</details>
 
 ## ⚙️ Технологии
 - Runtime: Java 21, Spring Boot 3.5.7

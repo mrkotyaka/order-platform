@@ -21,7 +21,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
     List<OrderEntity> findAllPendingPayment();
 
     @EntityGraph(attributePaths = {"items"})
-    Optional<OrderEntity> findWithItemsById(UUID id);
+    Optional<OrderEntity> findOrderById(UUID id);
 
     List<OrderEntity> findAllByOrderStatus(OrderStatus orderStatus);
 

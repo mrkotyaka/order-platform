@@ -1,5 +1,9 @@
 server:
   port: 8087
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never  # на проде лучше never
 
 spring:
   application:

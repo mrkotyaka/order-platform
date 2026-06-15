@@ -41,7 +41,7 @@ public class OrderController {
             @RequestHeader("X-User-Roles") String authUserRole
     ) {
         log.info("Retrieving order `{}` for user `{}`", id, authUserId);
-        var found = orderProcessor.getOrderOrThrow(id);
+        var found = orderProcessor.getOrderById(id);
 
         if (!found.getCustomerId().equals(authUserId) && authUserRole.equals("CUSTOMER")) {
             log.warn("User `{}` tried to access order `{}` belonging to user `{}`",
@@ -52,8 +52,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<OrderRsDto> getAll(
-            @RequestHeader("X-User-Roles") String authUserRole) {
+    public List<OrderRsDto> getAll(@RequestHeader("X-User-Roles") String authUserRole) {
         log.info("Retrieving all orders from the flow");
         if (!authUserRole.equals("ADMIN")) {
             log.warn("You are not is admin. Access denied to getting all orders");
@@ -61,8 +60,6 @@ public class OrderController {
         }
         return orderProcessor.getAllOrders();
     }
-
-
 
     @GetMapping("/status")
     public List<OrderRsDto> getOrderByStatus(
@@ -77,9 +74,8 @@ public class OrderController {
     }
 
     @GetMapping("/pendingpayment")
-    public List<OrderRsDto> getAllPending(
-            @RequestHeader("X-User-Roles") String authUserRole) {
-        log.info("Retrieving all pending payment orders from the flow");
+    public List<OrderRsDto> getAllPending(@RequestHeader("X-User-Roles") String authUserRole) {
+        log.info("Retrieving all pending payment orders");
         if (!authUserRole.equals("ADMIN")) {
             log.warn("You are not is admin. Access denied to getting all pending payment orders");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to getting all pending payment orders");
@@ -87,22 +83,18 @@ public class OrderController {
         return orderProcessor.getAllPendingPaymentOrders();
     }
 
-    @PostMapping("/pay/{id}")
+    @PostMapping("/pay/{orderId}")
     public OrderRsDto payOrder(
-            @PathVariable UUID id,
-            @RequestBody OrderPaymentRqDto request,
-            @RequestHeader("X-User-Roles") String authUserRole
+            @PathVariable UUID orderId,
+            @RequestBody OrderPaymentRqDto request
     ) {
-        log.debug("Paying order `{}`", id);
-        if (!authUserRole.equals("ADMIN")) {
-            log.warn("You are not is admin. Access denied to pay for this order");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to pay for this order");
-        }
-        return orderProcessor.processPayment(id, request);
+        log.info("Paying order `{}`", orderId);
+        return orderProcessor.processPayment(orderId, request);
     }
 
-    @PostMapping("/cancel/{id}")
-    public OrderRsDto cancelOrder(@PathVariable("id") UUID orderId) {
+    @PostMapping("/cancel/{orderId}")
+    public OrderRsDto cancelOrder(@PathVariable UUID orderId) {
+        log.info("Canceling order `{}`", orderId);
         return orderProcessor.cancelOrder(orderId);
     }
 }
