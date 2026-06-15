@@ -360,6 +360,6 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
 - ✔️ add rest by status
 - ✔️ update ddl for liquibase
 - ✔️ add reviews-service (feedback). Different rating for delivery, system and products
-- order picking simulation, can not cancel
-- add customers description to order
+- ✔️ add customers description to order
+- order picking simulation, when can not cancel, new status?
 - Later. close the direct method call. Stay only 8080 in docker in the end
