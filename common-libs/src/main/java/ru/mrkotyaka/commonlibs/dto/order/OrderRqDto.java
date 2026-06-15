@@ -4,6 +4,7 @@ import java.util.Set;
 
 public record OrderRqDto(
         String address,
-        Set<OrderItemRqDto> items
+        Set<OrderItemRqDto> items,
+        String comment
 ) {
 }

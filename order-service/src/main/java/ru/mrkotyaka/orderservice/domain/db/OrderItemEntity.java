@@ -53,15 +53,4 @@ public class OrderItemEntity {
     public int hashCode() {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
-
-    @Override
-    public String toString() {
-        return "OrderItemEntity{" +
-                "reviewId=" + id +
-//                ", orderId=" + orderId +
-                ", name='" + name + '\'' +
-                ", quantity=" + quantity +
-                ", price=" + price +
-                '}';
-    }
 }
