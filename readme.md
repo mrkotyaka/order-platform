@@ -11,6 +11,7 @@
 - **payment-service** (:8088) — Обработка транзакций.
 - **delivery-service** (:8089) — Назначение курьеров и отслеживание доставки.
 - **notification-service** (:8090) — Отправка уведомлений.
+- **review-service** (:8091) — Отзывы с рейтингом по заказу, курьеру(доставка) и продуктам.
 
 ## 🔄 Взаимодействие через Kafka
 
@@ -22,8 +23,9 @@
 4. **Delivery Service** ловит `order-paid`, назначает курьера и публикует `delivery-assigned`.
 5. **Order Service** обновляет финальный статус.
 6. **Delivery Service** меняет статус заказа на `DELIVERED`.
-6. **Notification Service** формирует и оправляет уведомления клиенту по событиям: `ORDER_CREATED`, `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `COURIER_ASSIGNED`.
-7. **[MailHog](http://localhost:8025/)** - позволяет проверить отправку уведомлений на email.
+7. **Notification Service** формирует и оправляет уведомления клиенту по событиям: `ORDER_CREATED`, `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `COURIER_ASSIGNED`.
+8. **Review Service** формирует и сохраняет отзывы с рейтингом по заказу, курьеру(доставка) и продуктам. Формирует средний рейтинг для курьера.
+9. **[MailHog](http://localhost:8025/)** - позволяет проверить отправку уведомлений на email.
 
 
 ### Схема топиков и сервисов
@@ -253,7 +255,7 @@ Authorization: Bearer токен, полученный при авторизац
 
 ```JSON
 {
-   "orderId": "ordedrId",
+   "orderId": "orderId",
    "orderRating": int (от 1 до 5),
    "courierRating": int (от 1 до 5),
    "productRating": int (от 1 до 5),
@@ -265,6 +267,14 @@ Authorization: Bearer токен, полученный при авторизац
 
 ```http 
 GET http://localhost:8080/api/reviews
+
+Authorization: Bearer токен, полученный при авторизации
+```
+
+**🔍 Найти отзыв по orderId**
+
+```http 
+GET http://localhost:8080/api/reviews/order{orderId}
 
 Authorization: Bearer токен, полученный при авторизации
 ```
@@ -349,7 +359,7 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
 - ✔️ add rest cancel
 - ✔️ add rest by status
 - ✔️ update ddl for liquibase
+- ✔️ add reviews-service (feedback). Different rating for delivery, system and products
 - order picking simulation, can not cancel
 - add customers description to order
-- add reviews-service (feedback). Different rating for delivery, system and products
 - Later. close the direct method call. Stay only 8080 in docker in the end
