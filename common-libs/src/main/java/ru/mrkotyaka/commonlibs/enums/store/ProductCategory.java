@@ -4,7 +4,7 @@ public enum ProductCategory {
     MEAT,
     FRUITS,
     VEGETABLES,
-    MILKY,
+    DAIRY,
     BAKED,
     DRINKS,
     FROZEN,

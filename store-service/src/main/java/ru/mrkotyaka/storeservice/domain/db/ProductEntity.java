@@ -30,8 +30,6 @@ public class ProductEntity {
 
     private String description;
 
-    private BigDecimal price;
-
     private ProductCategory category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST)

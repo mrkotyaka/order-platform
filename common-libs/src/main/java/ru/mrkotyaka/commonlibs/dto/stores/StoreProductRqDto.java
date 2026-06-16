@@ -1,16 +1,11 @@
 package ru.mrkotyaka.commonlibs.dto.stores;
 
-import lombok.Builder;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Builder
-public record StoreProductRsDto(
+public record StoreProductRqDto(
         UUID storeId,
-        String storeName,
         UUID productId,
-        String productName,
         BigDecimal price,
         BigDecimal stock
 ) {

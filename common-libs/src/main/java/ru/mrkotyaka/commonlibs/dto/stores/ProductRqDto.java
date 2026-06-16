@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 public record ProductRqDto(
         String name,
         String description,
-        BigDecimal price,
         ProductCategory category
 ) {
 }

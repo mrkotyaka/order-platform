@@ -6,11 +6,9 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Builder
-public record StoreProductRsDto(
+public record StoreProductInProductRsDto(
         UUID storeId,
         String storeName,
-        UUID productId,
-        String productName,
         BigDecimal price,
         BigDecimal stock
 ) {

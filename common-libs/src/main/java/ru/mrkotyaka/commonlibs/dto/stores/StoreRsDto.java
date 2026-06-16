@@ -1,12 +1,13 @@
 package ru.mrkotyaka.commonlibs.dto.stores;
 
 import java.util.Set;
+import java.util.UUID;
 
 public record StoreRsDto(
-        String storeId,
+        UUID storeId,
         String name,
         String address,
         int rating,
-        Set<StoreProductRsDto> inventory
+        Set<StoreProductInStoreRsDto> inventory
 ) {
 }

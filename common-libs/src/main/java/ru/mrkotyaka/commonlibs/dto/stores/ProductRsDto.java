@@ -9,8 +9,7 @@ public record ProductRsDto(
         String productId,
         String name,
         String description,
-        BigDecimal price,
         ProductCategory category,
-        Set<StoreProductRsDto> storeProducts
+        Set<StoreProductInProductRsDto> storeProducts
 ) {
 }
