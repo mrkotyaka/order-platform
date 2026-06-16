@@ -2,7 +2,7 @@ plugins {
     id("org.springframework.boot") //version "3.5.7"
 }
 
-version = "1.0.0"
+version = "2.0.0"
 
 dependencies {
     implementation(project(":common-libs"))

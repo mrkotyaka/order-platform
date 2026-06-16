@@ -2,7 +2,7 @@ plugins {
     id("org.springframework.boot")
 }
 
-version = "1.0.0"
+version = "2.0.0"
 
 //val springCloudVersion by extra("2024.0.1")
 

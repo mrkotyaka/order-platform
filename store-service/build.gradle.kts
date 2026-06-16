@@ -18,13 +18,9 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-    // lombok
-    implementation("org.projectlombok:lombok")
+    compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    testCompileOnly("org.projectlombok:lombok")
-    testAnnotationProcessor("org.projectlombok:lombok")
 
-    // additional libs
     implementation("org.mapstruct:mapstruct:1.6.3")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.0")

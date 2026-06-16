@@ -1,0 +1,49 @@
+server:
+  port: 8082
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never  # на проде лучше never
+
+spring:
+  application:
+    name: store-service
+
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    password: ${POSTGRES_PASSWORD:postgres}
+    username: ${POSTGRES_USER:postgres}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5433/${POSTGRES_DB_ORDERS:store_db}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+
+  liquibase:
+    enabled: false
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: dev
+
+  kafka:
+    consumer:
+      group-id: store-service-group
+    bootstrap-servers: localhost:9092
+
+## FeignClient
+#payment-service:
+#  url: http://localhost:8088
+#delivery-service:
+#  url: http://localhost:8089
+#
+## exchange data topics
+#order-paid-topic: order.events
+#delivery-assigned-topic: delivery.events
+#
+## notification topics
+#notification-topic: notifications.events
