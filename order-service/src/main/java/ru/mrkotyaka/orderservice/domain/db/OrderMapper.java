@@ -23,6 +23,7 @@ public interface OrderMapper {
                         orderItemEntity -> orderItemEntity.setOrderId(orderEntity));
     }
 
+    @Mapping(source = "id", target = "orderId")
     OrderRsDto toOrderDto(OrderEntity orderEntity);
 
     OrderItemRsDto toOrderItemDto(OrderItemEntity entity);

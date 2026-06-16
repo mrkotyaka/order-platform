@@ -329,37 +329,34 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
     ```
 3. Запустить **delivery-service**.
 
-## 📝 План для реализации
-### Add
+## 📝 План для реализации (идеи и мысли)
 - ✔️ common-libs
 - ✔️ order-service
 - ✔️ payment-service
 - ✔️ delivery-service
 - ✔️ couriers (id, name, email, phone)
-- ✔️ impl couriers
-- ✔️ assign free courier for an order
-- ✔️ add multithreading
+- ✔️ реализовать couriers
+- ✔️ назначить свободного курьера на заказа
+- ✔️ добавить многопоточку
 - ✔️ authentification-service
 - ✔️ gateway-service
-- ✔️ customers (id, name, email, phone, role) - implements like user_credentials
-- ✔️ impl items (id, name, price)
-- ✔️ get order - check user login (id)
+- ✔️ customers (id, name, email, phone, role) - реализовать как user_credentials
+- ✔️ реализовать items (id, name, price)
+- ✔️ get order - проверить user login (id)
 - ✔️ notification-service
-- ✔️ add into customers card boolean type of notice (sms, email, push)
-- ✔️ fix assign courier!
-- ✔️ notification-service. Sending email to customers. Used Kafka
-- ✔️ notification-service - check by null email
-- ✔️ deliveries rename deliveries.courier_name to deliveries.courier_id. Impl transfer courier_name by courier_id
-- ✔️ implementation Liquibase (spring.jpa.hibernate.ddl-auto=validate)
-- ✔️ check DELIVERY_ASSIGNED for delivered
-- ✔️ add methods for create records couriers and items
-- ✔️ implementation auth for courier into auth-service and transfer common data into delivery.courierEntity via Kafka for assign.
-- ✔️ transfer external rests
-- ✔️ notification-service. Sending email to couriers.
-- ✔️ add rest cancel
-- ✔️ add rest by status
-- ✔️ update ddl for liquibase
-- ✔️ add reviews-service (feedback). Different rating for delivery, system and products
-- order picking simulation, can not cancel
-- add customers description to order
-- Later. close the direct method call. Stay only 8080 in docker in the end
+- ✔️ добавить в customers тип boolean уведомления (sms, email, push)
+- ✔️ протестировать назначение courier!
+- ✔️ notification-service. Отправка email для customers. Использовать Kafka
+- ✔️ notification-service - проверка на null в email
+- ✔️ в deliveries переименовать deliveries.courier_name в deliveries.courier_id. Реализовать передачу courier_name по courier_id
+- ✔️ реализовать Liquibase (spring.jpa.hibernate.ddl-auto=validate)
+- ✔️ протестировать DELIVERY_ASSIGNED for delivered
+- ✔️ добавить методы для курьеров и товаров
+- ✔️ разработать авторизацию для курьера в auth-service и передачу обшей информации в delivery.courierEntity через Kafka для назначения.
+- ✔️ вынести отдельно external ресты
+- ✔️ notification-service. Отправка email для couriers.
+- ✔️ добавить rest Cancel
+- ✔️ add rest by status разработать ресты получения заказов по статусам
+- ✔️ обновлять ddl для liquibase
+- ✔️ разработать reviews-service (feedback, отзывы). Разделенные рейтинги для Заказов, Доставки (courier) и Товаров
+- ✔️ добавить Примечание клиента в Заказ

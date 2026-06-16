@@ -19,19 +19,21 @@ public class ItemProcessor {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
 
-
     @Transactional(readOnly = true)
     public List<ItemRsDto> getAllItems() {
         List<ItemRsDto> allItemRsDto = new ArrayList<>();
         var allItems = itemRepository.findAll();
+
         for (var item : allItems) {
             allItemRsDto.add(itemMapper.toItemRsDto(item));
         }
+
         return allItemRsDto;
     }
 
     public List<ItemRsDto> createItems(List<ItemRqDto> request) {
         List<ItemRsDto> itemsRsDto = new ArrayList<>();
+
         for (var itemRqDto : request) {
             var entity = itemMapper.toItemEntity(itemRqDto);
             entity.setName(itemRqDto.name());
