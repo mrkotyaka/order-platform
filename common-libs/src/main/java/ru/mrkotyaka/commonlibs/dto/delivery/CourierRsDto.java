@@ -1,6 +1,4 @@
-package ru.mrkotyaka.commonlibs.dto.courier;
-
-import ru.mrkotyaka.commonlibs.dto.delivery.DeliveryRsDto;
+package ru.mrkotyaka.commonlibs.dto.delivery;
 
 import java.math.BigDecimal;
 import java.util.List;

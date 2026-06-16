@@ -1,4 +1,4 @@
-package ru.mrkotyaka.commonlibs.dto.courier;
+package ru.mrkotyaka.commonlibs.dto.delivery;
 
 import java.util.UUID;
 

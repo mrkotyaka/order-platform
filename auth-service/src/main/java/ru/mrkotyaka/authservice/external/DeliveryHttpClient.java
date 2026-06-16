@@ -3,8 +3,8 @@ package ru.mrkotyaka.authservice.external;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.mrkotyaka.commonlibs.dto.courier.CourierRqDto;
-import ru.mrkotyaka.commonlibs.dto.courier.CourierRsDto;
+import ru.mrkotyaka.commonlibs.dto.delivery.CourierRqDto;
+import ru.mrkotyaka.commonlibs.dto.delivery.CourierRsDto;
 
 @FeignClient(
         name = "delivery-service",

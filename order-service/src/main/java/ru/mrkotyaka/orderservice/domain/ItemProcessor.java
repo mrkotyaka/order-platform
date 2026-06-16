@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.mrkotyaka.commonlibs.dto.item.ItemRqDto;
-import ru.mrkotyaka.commonlibs.dto.item.ItemRsDto;
+import ru.mrkotyaka.commonlibs.dto.order.ItemRqDto;
+import ru.mrkotyaka.commonlibs.dto.order.ItemRsDto;
 import ru.mrkotyaka.orderservice.domain.db.ItemMapper;
 import ru.mrkotyaka.orderservice.domain.db.ItemRepository;
 

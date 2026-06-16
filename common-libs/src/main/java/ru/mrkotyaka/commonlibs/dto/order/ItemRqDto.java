@@ -1,4 +1,4 @@
-package ru.mrkotyaka.commonlibs.dto.item;
+package ru.mrkotyaka.commonlibs.dto.order;
 
 public record ItemRqDto(
         String name,

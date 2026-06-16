@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.mrkotyaka.commonlibs.dto.courier.CourierRqDto;
-import ru.mrkotyaka.commonlibs.dto.courier.CourierRsDto;
+import ru.mrkotyaka.commonlibs.dto.delivery.CourierRqDto;
+import ru.mrkotyaka.commonlibs.dto.delivery.CourierRsDto;
 import ru.mrkotyaka.deliveryservice.domain.CourierProcessor;
 import ru.mrkotyaka.deliveryservice.domain.DeliveryProcessor;
 

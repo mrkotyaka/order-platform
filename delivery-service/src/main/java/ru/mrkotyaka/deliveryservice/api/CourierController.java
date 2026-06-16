@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import ru.mrkotyaka.commonlibs.dto.courier.CourierRsDto;
+import ru.mrkotyaka.commonlibs.dto.delivery.CourierRsDto;
 import ru.mrkotyaka.deliveryservice.domain.CourierProcessor;
 
 import java.util.List;

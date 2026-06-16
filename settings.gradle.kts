@@ -9,4 +9,5 @@ include("gateway-service")
 include("auth-service")
 include("notification-service")
 include("review-service")
+
 include("store-service")

@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
-import ru.mrkotyaka.commonlibs.dto.courier.CourierRqDto;
-import ru.mrkotyaka.commonlibs.dto.courier.CourierRsDto;
+import ru.mrkotyaka.commonlibs.dto.delivery.CourierRqDto;
+import ru.mrkotyaka.commonlibs.dto.delivery.CourierRsDto;
 
 @Mapper(
         unmappedSourcePolicy = ReportingPolicy.IGNORE,

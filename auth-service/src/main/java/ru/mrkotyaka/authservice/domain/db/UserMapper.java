@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 import ru.mrkotyaka.commonlibs.dto.auth.UserRsDto;
-import ru.mrkotyaka.commonlibs.dto.courier.CourierRqDto;
+import ru.mrkotyaka.commonlibs.dto.delivery.CourierRqDto;
 
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
