@@ -1,10 +1,7 @@
 package ru.mrkotyaka.deliveryservice.domain.db;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "deliveries")
+@Builder
 public class DeliveryEntity {
     @Id
     @UuidGenerator
@@ -33,7 +31,7 @@ public class DeliveryEntity {
     private Integer etaMinutes;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;

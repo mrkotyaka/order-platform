@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.mrkotyaka.commonlibs.dto.stores.StoreRqDto;
 import ru.mrkotyaka.commonlibs.dto.stores.StoreRsDto;
@@ -21,40 +20,37 @@ public class StoreController {
     private final StoreProcessor storeProcessor;
 
     @GetMapping
-    public ResponseEntity<List<StoreRsDto>> getStores() {
+    public List<StoreRsDto> getStores() {
         log.info("REST: Getting all stores");
-        List<StoreRsDto> stores = storeProcessor.getStores();
-        return ResponseEntity.ok(stores);
+        return storeProcessor.getStores();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StoreRsDto> getStoreById(@PathVariable UUID id) {
+    public StoreRsDto getStoreById(@PathVariable UUID id) {
         log.info("REST: Getting store by id: {}", id);
-        StoreRsDto store = storeProcessor.getStoreById(id);
-        return ResponseEntity.ok(store);
+        return storeProcessor.getStoreById(id);
     }
 
     @PostMapping
-    public ResponseEntity<StoreRsDto> createStore(@Valid @RequestBody StoreRqDto request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public StoreRsDto createStore(@Valid @RequestBody StoreRqDto request) {
         log.info("REST: Creating new store: {}", request.name());
-        StoreRsDto created = storeProcessor.createStore(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return storeProcessor.createStore(request);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StoreRsDto> updateStore(
+    public StoreRsDto updateStore(
             @PathVariable UUID id,
             @Valid @RequestBody StoreRqDto request
     ) {
         log.info("REST: Updating store: {}", id);
-        StoreRsDto updated = storeProcessor.updateStore(id, request);
-        return ResponseEntity.ok(updated);
+        return storeProcessor.updateStore(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStore(@PathVariable UUID id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteStore(@PathVariable UUID id) {
         log.info("REST: Deleting store: {}", id);
         storeProcessor.deleteStore(id);
-        return ResponseEntity.noContent().build();
     }
 }

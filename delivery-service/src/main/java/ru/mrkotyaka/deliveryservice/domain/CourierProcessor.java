@@ -25,58 +25,67 @@ public class CourierProcessor {
     private final CourierMapper courierMapper;
 
     public List<CourierRsDto> getCouriers() {
-        List<CourierRsDto> allCourierRsDto = new ArrayList<>();
-        var entities = courierRepository.findAll();
-        for (var entity : entities) {
-            allCourierRsDto.add(courierMapper.toCourierRsDto(entity));
+        var couriers = courierRepository.findAll();
+
+        if (couriers.isEmpty()) {
+            log.info("No couriers found");
+            return List.of();
         }
-        return allCourierRsDto;
+
+        return couriers.stream()
+                .map(courierMapper::toCourierRsDto)
+                .toList();
     }
 
-    public CourierEntity getCourierByIdOrThrow(UUID id) {
-        var courierEntityOpt = courierRepository.findById(id);
-        return courierEntityOpt
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Courier with reviewId `%s` not found".formatted(id)));
+    public CourierEntity getCourierById(UUID id) {
+        var courier = courierRepository.findById(id);
+        return courier
+                .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Courier with courierId `%s` not found".formatted(id)));
     }
 
-    private CourierEntity getCourierByUserIdOrThrow(UUID userId) {
+    private CourierEntity getCourierByUserId(UUID userId) {
         return courierRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Courier not found for userId: " + userId
+                        "Courier not found for userId `%s`" + userId
                 ));
     }
 
-    public CourierEntity getFreeAnyCourierOrThrow() {
+    public CourierEntity getFreeAnyCourier() {
         var freeCourier = courierRepository.findOne();
         return freeCourier
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Free couriers not found now"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Free couriers not found now"));
     }
 
     public List<CourierRsDto> getFreeCouriers() {
-        List<CourierRsDto> allCourierRsDto = new ArrayList<>();
-        var allCourier = courierRepository.findAllFree();
-        for (var courier : allCourier) {
-            allCourierRsDto.add(courierMapper.toCourierRsDto(courier));
+        var freeCouriers = courierRepository.findAllFree();
+
+        if (freeCouriers.isEmpty()) {
+            log.info("No free couriers found");
+            return List.of();
         }
-        return allCourierRsDto;
+
+        return freeCouriers.stream()
+                .map(courierMapper::toCourierRsDto)
+                .toList();
     }
 
     public CourierRsDto createCourier(CourierRqDto request) {
-        var courier = new CourierEntity();
-        courier = courierMapper.toCourierEntity(request);
-        courierRepository.save(courier);
-        log.info("Courier saved successfully");
-        return courierMapper.toCourierRsDto(courier);
+        var courier  = courierMapper.toCourierEntity(request);
+        var saved = courierRepository.save(courier);
+        log.info("Courier `{}` saved successfully", saved.getId());
+        return courierMapper.toCourierRsDto(saved);
     }
 
     public void updateCourierRating(ReviewRsDto event) {
         log.info("Updating courier rating for userId: {}, courierRating: {}",
                 event.userId(), event.courierRating());
 
-        var courier = getCourierByUserIdOrThrow(event.userId());
+        var courier = getCourierByUserId(event.userId());
 
         var currentRating = courier.getRating();
         BigDecimal averageRating;
@@ -105,7 +114,6 @@ public class CourierProcessor {
             Integer count = ((Number) row[1]).intValue();
             deliveriesMap.put(name, count);
         }
-
         return deliveriesMap;
     }
 }

@@ -5,7 +5,7 @@
 -- create table if not exists orders
 -- (
 --     reviewId uuid not null primary key,
---     address varchar(255) not null,
+--     deliveryAddress varchar(255) not null,
 --     courier_name varchar(255),
 --     customer_id uuid,
 --     delivered_at timestamp(6),

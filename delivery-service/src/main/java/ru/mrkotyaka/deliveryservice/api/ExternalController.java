@@ -24,13 +24,14 @@ public class ExternalController {
 
     @PostMapping("/deliveries/getcourier")
     public UUID getCourierId(@RequestBody UUID orderId) {
+        log.info("Getting courier by orderId {}", orderId);
         return deliveryProcessor.getDelivery(orderId).getCourierId().getUserId();
     }
 
     @PostMapping("/couriers/create")
     public CourierRsDto createCourier(@RequestBody CourierRqDto request) {
         log.info("Creating a new courier from external request");
-        log.info("Request details - userId: {}, name: {}", request.userId(), request.name());
+        log.debug("Request details - userId: {}, name: {}", request.userId(), request.name());
         return courierProcessor.createCourier(request);
     }
 }

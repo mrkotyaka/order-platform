@@ -20,8 +20,7 @@ public class ItemController {
     private final ItemProcessor itemProcessor;
 
     @GetMapping
-    public List<ItemRsDto> getAllItems(
-            @RequestHeader("X-User-Roles") String authUserRole) {
+    public List<ItemRsDto> getAllItems(@RequestHeader("X-User-Roles") String authUserRole) {
         log.info("Retrieving all items");
         if (!authUserRole.equals("ADMIN")) {
             log.warn("You are not is admin. Access denied to getting all items");

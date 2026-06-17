@@ -377,4 +377,6 @@ props.put(JsonDeserializer.TRUSTED_PACKAGES, "ru.mrkotyaka.commonlibs.*");
 - Аналитический отчет по выручке и движению товаров
 - Одинаковые ли способы Кафки обращения к другим сервисам
 
+technique. household appliances. Computer equipment
+
 - Later. Закрыть прямые вызовы методов в сервисах. В конце оставить только 8080 в Docker

@@ -35,7 +35,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public OrderRsDto getOne(
+    public OrderRsDto getOrderById(
             @PathVariable UUID id,
             @RequestHeader("X-User-Id") UUID authUserId,
             @RequestHeader("X-User-Roles") String authUserRole

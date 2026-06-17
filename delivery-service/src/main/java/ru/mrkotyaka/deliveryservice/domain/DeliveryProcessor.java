@@ -10,7 +10,8 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
-import ru.mrkotyaka.deliveryservice.domain.db.*;
+import ru.mrkotyaka.deliveryservice.domain.db.DeliveryEntity;
+import ru.mrkotyaka.deliveryservice.domain.db.DeliveryRepository;
 import ru.mrkotyaka.deliveryservice.external.OrderHttpClient;
 
 import java.time.LocalDateTime;
@@ -33,10 +34,10 @@ public class DeliveryProcessor {
     public void processOrderPaid(OrderPaidEvent event) {
 
         var orderId = event.orderId();
-        var found = deliveryRepository.findByOrderId(orderId);
+        var entity = deliveryRepository.findByOrderId(orderId);
 
-        if (found.isPresent()) {
-            log.info("Found order delivery was already assigned: delivery={}", found.get());
+        if (entity.isPresent()) {
+            log.warn("Found order delivery was already assigned: delivery={}", entity.get());
             return;
         }
 
@@ -45,28 +46,28 @@ public class DeliveryProcessor {
     }
 
     private DeliveryEntity assignDelivery(UUID orderId) {
-        var freeCourier = courierProcessor.getFreeAnyCourierOrThrow();
+        var freeCourier = courierProcessor.getFreeAnyCourier();
 
-        var entity = new DeliveryEntity();
-        entity.setOrderId(orderId);
-        entity.setCourierId(freeCourier);
-        entity.setEtaMinutes(ThreadLocalRandom.current().nextInt(10, 45));
-        entity.setCreatedAt(LocalDateTime.now());
+        var entity = DeliveryEntity.builder()
+                .orderId(orderId)
+                .courierId(freeCourier)
+                .etaMinutes(ThreadLocalRandom.current().nextInt(10, 45))
+                .build();
 
-        log.info("Saved order delivery was assigned.");
-
-        return deliveryRepository.save(entity);
+        var saved = deliveryRepository.save(entity);
+        log.info("Saved delivery `{}` was assigned", saved.getId());
+        return saved;
     }
 
     private void sendDeliveryAssignedEvent(DeliveryEntity assignedDelivery) {
-        var courierEntity = courierProcessor.getCourierByIdOrThrow(assignedDelivery.getCourierId().getId());
+        var entity = courierProcessor.getCourierById(assignedDelivery.getCourierId().getId());
 
         kafkaTemplate.send(
                 deliveryAssignedTopic,
                 assignedDelivery.getOrderId(),
                 DeliveryAssignedEvent.builder()
                         .userId(assignedDelivery.getCourierId().getUserId())
-                        .courierName(courierEntity.getName())
+                        .courierName(entity.getName())
                         .orderId(assignedDelivery.getOrderId())
                         .etaMinutes(assignedDelivery.getEtaMinutes())
                         .canceledAt(assignedDelivery.getCanceledAt())
@@ -76,29 +77,30 @@ public class DeliveryProcessor {
 
     public DeliveryEntity getDelivery(UUID orderId) {
         return deliveryRepository.findByOrderId(orderId)
-                .orElseThrow(() ->
-                {
-                    log.info("Delivery with orderId `{}` not found", orderId);
-                    return new ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery for order `%s` not found".formatted(orderId));
-                });
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Delivery for order `%s` not found".formatted(orderId)));
     }
 
-    public OrderRsDto setStatusDelivered(DeliveryEntity entity) {
-        var delivery = orderHttpClient.setStatusDelivered(entity.getOrderId());
-        entity.setDeliveredAt(delivery.deliveredAt());
-        deliveryRepository.save(entity);
-        log.info("Delivery `{}` is delivered", entity.getId());
-        return delivery;
+    public OrderRsDto setStatusDelivered(DeliveryEntity delivery) {
+        var orderDto = orderHttpClient.setStatusDelivered(delivery.getOrderId());
+        delivery.setDeliveredAt(orderDto.deliveredAt());
+        var saved = deliveryRepository.save(delivery);
+        log.info("Delivery `{}` is delivered", saved.getId());
+        return orderDto;
     }
 
     public void processOrderCanceled(OrderPaidEvent event) {
         var orderId = event.orderId();
-        var entity = deliveryRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new  ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery for order `%s` not found".formatted(orderId)));
+        var delivery = deliveryRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Delivery for order `%s` not found".formatted(orderId)));
 
-        entity.setCanceledAt(LocalDateTime.now());
+        delivery.setCanceledAt(LocalDateTime.now());
 
-        deliveryRepository.save(entity);
-        sendDeliveryAssignedEvent(entity);
+        var saved = deliveryRepository.save(delivery);
+        log.info("Delivery `{}` is canceled", saved.getId());
+        sendDeliveryAssignedEvent(saved);
     }
 }

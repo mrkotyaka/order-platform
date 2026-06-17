@@ -25,13 +25,13 @@ public class DeliveryController {
             @RequestHeader("X-User-Roles") String authUserRole
     ) {
         log.info("Changing the status of an order `{}`", orderId);
-        var entity = deliveryProcessor.getDelivery(orderId);
-        var deliveryUserId = entity.getCourierId().getUserId();
+        var delivery = deliveryProcessor.getDelivery(orderId);
+        var deliveryUserId = delivery.getCourierId().getUserId();
+
         if (!(authUserRole.equals("COURIER") && deliveryUserId.equals(authUserId)) && !authUserRole.equals("ADMIN")) {
             log.warn("You are not a courier. Access denied to changing the status");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to changing the status");
         }
-
-        return deliveryProcessor.setStatusDelivered(entity);
+        return deliveryProcessor.setStatusDelivered(delivery);
     }
 }

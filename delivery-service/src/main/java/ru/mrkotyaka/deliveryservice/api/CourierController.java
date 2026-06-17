@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.dto.delivery.CourierRsDto;
 import ru.mrkotyaka.deliveryservice.domain.CourierProcessor;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 
@@ -25,34 +26,33 @@ public class CourierController {
     @GetMapping
     public List<CourierRsDto> getCouriers(@RequestHeader("X-User-Roles") String authUserRole) {
         log.info("Retrieving couriers list");
-
-        if (!authUserRole.equals("ADMIN")) {
-            log.warn("You are not is admin. Access denied to create new item");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to create new item");
-        }
-
+        adminAccessValidate(authUserRole);
         return courierProcessor.getCouriers();
     }
 
     @GetMapping("/free")
     public List<CourierRsDto> getFreeCouriers(@RequestHeader("X-User-Roles") String authUserRole) {
         log.info("Retrieving list of free couriers");
-
-        if (!authUserRole.equals("ADMIN")) {
-            log.warn("You are not is admin. Access denied to create new item");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to create new item");
-        }
+        adminAccessValidate(authUserRole);
         return courierProcessor.getFreeCouriers();
     }
 
     @GetMapping("/numberdeliveries")
     public Map<String, Integer> getNumberDeliveries(@RequestHeader("X-User-Roles") String authUserRole) {
         log.info("Retrieving list of numbers of deliveries by couriers");
+        adminAccessValidate(authUserRole);
+        return courierProcessor.getNumberDeliveries();
+    }
+
+    private static void adminAccessValidate(String authUserRole) {
+        String methodName = MethodHandles.lookup()
+                .lookupClass()
+                .getEnclosingMethod()
+                .getName();
 
         if (!authUserRole.equals("ADMIN")) {
-            log.warn("You are not is admin. Access denied to create new item");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to create new item");
+            log.warn("Access to {} is allowed only to Admins", methodName);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
-        return courierProcessor.getNumberDeliveries();
     }
 }

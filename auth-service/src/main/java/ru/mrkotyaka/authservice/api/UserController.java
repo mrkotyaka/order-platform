@@ -9,6 +9,7 @@ import ru.mrkotyaka.authservice.domain.UserProcessor;
 import ru.mrkotyaka.authservice.domain.db.UserMapper;
 import ru.mrkotyaka.commonlibs.dto.auth.UserRsDto;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,25 +23,15 @@ public class UserController {
     private final UserMapper userMapper;
 
     @GetMapping
-    public List<UserRsDto> getAllUsers(
-            @RequestHeader("X-User-Roles") String authUserRole
-    ) {
+    public List<UserRsDto> getAllUsers(@RequestHeader("X-User-Roles") String authUserRole) {
         log.info("Retrieving all users");
-
-        if (!authUserRole.equals("ADMIN")) {
-            log.warn("You are not is admin. Access denied to this info");
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this info");
-        }
-
+        adminAccessValidate(authUserRole);
         return userProcessor.getAllUsers();
     }
 
     @GetMapping("/whoami")
-    public UserRsDto getMe(
-            @RequestHeader("X-User-Id") UUID authUserId
-    ) {
+    public UserRsDto getMe(@RequestHeader("X-User-Id") UUID authUserId) {
         log.info("Retrieving users `{}` info", authUserId);
-
         return userMapper.toUserDto(userProcessor.getUserInfo(authUserId));
     }
 
@@ -50,15 +41,27 @@ public class UserController {
             @RequestHeader("X-User-Id") UUID authUserId,
             @RequestHeader("X-User-Roles") String authUserRole
     ) {
-        log.info("Retrieving users info by reviewId={}", id);
+        log.info("Retrieving users info by userId `{}`", id);
 
-        var user = userProcessor.getUserInfo(id);
+        var userInfo = userProcessor.getUserInfo(id);
 
-        if (!user.getId().equals(authUserId) && authUserRole.equals("CUSTOMER")) {
-            log.warn("User reviewId=`{}` tried to get info about user reviewId=`{}`",
-                    authUserId, user.getId());
+        if (!userInfo.getId().equals(authUserId) && authUserRole.equals("CUSTOMER")) {
+            log.warn("User `{}` tried to get info about userId `{}`",
+                    authUserId, userInfo.getId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this info");
         }
-        return userMapper.toUserDto(user);
+        return userMapper.toUserDto(userInfo);
+    }
+
+    private static void adminAccessValidate(String authUserRole) {
+        String methodName = MethodHandles.lookup()
+                .lookupClass()
+                .getEnclosingMethod()
+                .getName();
+
+        if (!authUserRole.equals("ADMIN")) {
+            log.warn("Access to {} is allowed only to Admins", methodName);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
     }
 }

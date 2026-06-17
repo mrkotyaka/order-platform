@@ -13,7 +13,6 @@ import ru.mrkotyaka.commonlibs.dto.auth.UserRqDto;
 import ru.mrkotyaka.commonlibs.dto.auth.UserRsDto;
 import ru.mrkotyaka.commonlibs.enums.auth.UserRoles;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,11 +28,8 @@ public class UserProcessor {
     private final DeliveryHttpClient deliveryHttpClient;
 
     public MessageRsDto register(UserRqDto request) {
-        log.info("=== REGISTER START ===");
-        log.info("Request login: {}", request.login());
-        log.info("Request name: {}", request.name());
-
-        UserEntity user = UserEntity.builder()
+        log.info("Start registration");
+        var entity = UserEntity.builder()
                 .login(request.login())
                 .password(passwordEncoder.encode(request.password()))
                 .name(request.name())
@@ -44,19 +40,19 @@ public class UserProcessor {
                 .notificationPreference(request.notificationPreference())
                 .build();
 
-        userRepository.save(user);
-        log.info("User `{}` saved successfully", user.getId());
+        var saved = userRepository.save(entity);
+        log.info("User `{}` saved successfully", saved.getId());
 
-        if (user.getId() != null && (user.getRole() == UserRoles.COURIER || user.getRole() == UserRoles.ADMIN)) {
-            var courier = deliveryHttpClient.createCourier(userMapper.toCourierRqDto(user));
-            log.info("User `{}` saved successfully like courier `{}`", user.getId(), courier.userId());
+        if (saved.getId() != null && (saved.getRole() == UserRoles.COURIER || saved.getRole() == UserRoles.ADMIN)) {
+            var courier = deliveryHttpClient.createCourier(userMapper.toCourierRqDto(saved));
+            log.info("User `{}` saved successfully like courier `{}`", saved.getId(), courier.courierId());
         }
 
-        return new MessageRsDto("User registered successfully!");
+        return new MessageRsDto("User `" + saved.getId() + "` registered successfully");
     }
 
     public String login(UserRqDto request) {
-        UserEntity user = userRepository.findByLogin(request.login())
+        var user = userRepository.findByLogin(request.login())
                 .orElseThrow(() -> new RuntimeException("Invalid name or password"));
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
@@ -67,12 +63,10 @@ public class UserProcessor {
     }
 
     public List<UserRsDto> getAllUsers() {
-        List<UserRsDto> allUsersDto = new ArrayList<>();
         var allUsers = userRepository.findAll();
-        for (var user : allUsers) {
-            allUsersDto.add(userMapper.toUserDto(user));
-        }
-        return allUsersDto;
+        return allUsers.stream()
+                .map(userMapper::toUserDto)
+                .toList();
     }
 
     public UserEntity getUserInfo(UUID id) {

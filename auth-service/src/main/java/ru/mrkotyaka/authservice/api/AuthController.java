@@ -2,11 +2,8 @@ package ru.mrkotyaka.authservice.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import ru.mrkotyaka.authservice.domain.UserProcessor;
 import ru.mrkotyaka.commonlibs.dto.auth.AuthRsDto;
 import ru.mrkotyaka.commonlibs.dto.auth.MessageRsDto;
@@ -17,24 +14,21 @@ import ru.mrkotyaka.commonlibs.dto.auth.UserRqDto;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
     private final UserProcessor userProcessor;
 
     @PostMapping("/register")
-    public ResponseEntity<MessageRsDto> register(
-            @RequestBody UserRqDto request
-    ) {
-        return ResponseEntity.ok(userProcessor.register(request));
+    @ResponseStatus(HttpStatus.CREATED)
+    public MessageRsDto register(@RequestBody UserRqDto request) {
+        return userProcessor.register(request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthRsDto> login(
-            @RequestBody UserRqDto request
-    ) {
+    public AuthRsDto login(@RequestBody UserRqDto request) {
         String token = userProcessor.login(request);
 
-        log.info("Login was successful. Token: {}", token);
+        log.info("Login was successful");
+        log.debug("Token: {}", token);
 
-        return ResponseEntity.ok(new AuthRsDto(token));
+        return new AuthRsDto(token);
     }
 }

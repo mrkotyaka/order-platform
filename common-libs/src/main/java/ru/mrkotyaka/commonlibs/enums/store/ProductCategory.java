@@ -9,4 +9,5 @@ public enum ProductCategory {
     DRINKS,
     FROZEN,
     CHEMICALS,
+    EQUIPMENT
 }

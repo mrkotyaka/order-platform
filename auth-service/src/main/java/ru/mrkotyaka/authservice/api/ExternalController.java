@@ -20,9 +20,7 @@ public class ExternalController {
     private final UserProcessor userProcessor;
 
     @GetMapping("/users/{id}")
-    public UserNotificationDto getUserForNotification(
-            @PathVariable UUID id
-    ) {
+    public UserNotificationDto getUserForNotification(@PathVariable UUID id) {
         var user = userProcessor.getUserInfo(id);
         return new UserNotificationDto(
                 user.getId(),
