@@ -36,6 +36,8 @@ spring:
     bootstrap-servers: localhost:9092
 
 # FeignClient
+store-service:
+  url: http://localhost:8082
 payment-service:
   url: http://localhost:8088
 delivery-service:

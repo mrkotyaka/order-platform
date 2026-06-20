@@ -33,10 +33,13 @@ public class OrderEntity {
     private UUID customerId;
 
     @Column(name = "address", nullable = false)
-    private String address;
+    private String deliveryAddress;
 
     @Column(name = "total_amount", precision = 19, scale = 2)
     private BigDecimal totalAmount;
+
+    @Column(name = "store_name")
+    private String storeName;
 
     @Column(name = "courier_name")
     private String courierName;

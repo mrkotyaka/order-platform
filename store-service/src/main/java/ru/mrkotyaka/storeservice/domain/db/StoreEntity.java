@@ -33,7 +33,7 @@ public class StoreEntity {
     private int rating;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.PERSIST)
-    private Set<StoreProductEntity> inventory = new LinkedHashSet<>();
+    private Set<WarehouseEntity> inventory = new LinkedHashSet<>();
 
     public boolean isActive() {
         LocalDateTime now = LocalDateTime.now();

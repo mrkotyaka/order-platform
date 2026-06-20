@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.mrkotyaka.commonlibs.dto.order.OrderPaymentRqDto;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRqDto;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
+import ru.mrkotyaka.commonlibs.dto.order.PriceRequestDto;
 import ru.mrkotyaka.commonlibs.dto.payment.PaymentRqDto;
 import ru.mrkotyaka.commonlibs.dto.payment.PaymentRsDto;
 import ru.mrkotyaka.commonlibs.enums.notification.NotificationType;
@@ -20,16 +21,22 @@ import ru.mrkotyaka.commonlibs.enums.payment.PaymentStatus;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
-import ru.mrkotyaka.orderservice.domain.db.*;
+import ru.mrkotyaka.orderservice.domain.db.OrderEntity;
+import ru.mrkotyaka.orderservice.domain.db.OrderItemEntity;
+import ru.mrkotyaka.orderservice.domain.db.OrderMapper;
+import ru.mrkotyaka.orderservice.domain.db.OrderRepository;
 import ru.mrkotyaka.orderservice.external.DeliveryHttpClient;
 import ru.mrkotyaka.orderservice.external.PaymentHttpClient;
+import ru.mrkotyaka.orderservice.external.StoreHttpClient;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,9 +44,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class OrderProcessor {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final ItemRepository itemRepository;
     private final PaymentHttpClient paymentHttpClient;
     private final DeliveryHttpClient deliveryHttpClient;
+    private final StoreHttpClient storeHttpClient;
     private final KafkaTemplate<UUID, OrderPaidEvent> kafkaTemplate;
     private final KafkaTemplate<UUID, NotificationEvent> notificationKafkaTemplate;
 
@@ -51,11 +58,35 @@ public class OrderProcessor {
 
     @Transactional
     public OrderRsDto create(OrderRqDto request, UUID authUserId) {
-        var entity = orderMapper.toOrderEntity(request);
-        entity.setCustomerId(authUserId);
-        calcPricingForOrder(entity);
-        entity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
-        var saved = orderRepository.save(entity);
+
+        var priceRequestDto = PriceRequestDto.builder()
+                .storeName(request.storeName())
+                .items(request.items())
+                .build();
+
+        var orderItemRsDtos = storeHttpClient.getItemPrice(priceRequestDto);
+
+        var orderEntity = orderMapper.toOrderEntity(request);
+        orderEntity.setCustomerId(authUserId);
+        orderEntity.setOrderStatus(OrderStatus.PENDING_PAYMENT);
+
+        var orderItemEntities = orderItemRsDtos.stream()
+                .map(item -> {
+                            OrderItemEntity orderItemEntity = orderMapper.toOrderItemEntity(item);
+                            orderItemEntity.setOrderId(orderEntity);
+                            return orderItemEntity;
+                        }
+                )
+                .collect(Collectors.toSet());
+        orderEntity.setItems(orderItemEntities);
+
+        BigDecimal totalAmount = orderItemRsDtos.stream()
+                .map(item -> item.price().multiply(BigDecimal.valueOf(item.quantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        orderEntity.setTotalAmount(totalAmount);
+        var saved = orderRepository.save(orderEntity);
 
         sendNotification(
                 saved.getCustomerId(),
@@ -73,9 +104,9 @@ public class OrderProcessor {
     @Transactional(readOnly = true)
     public OrderEntity getOrderById(UUID orderId) {
         var order = orderRepository.findOrderById(orderId);
-        return order
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Order `%s` not found".formatted(orderId)));
+        return order.orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Order `%s` not found".formatted(orderId)));
     }
 
     @Transactional(readOnly = true)
@@ -100,26 +131,6 @@ public class OrderProcessor {
         }
 
         return allPendingPaymentOrdersDTO;
-    }
-
-
-    private void calcPricingForOrder(OrderEntity orderEntity) {
-        BigDecimal totalPrice = BigDecimal.ZERO;
-
-        for (OrderItemEntity item : orderEntity.getItems()) {
-
-            if (!itemRepository.existsByName(item.getName())) {
-                log.info("Item `{}` not found. Please use items list", item.getName());
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-            } else {
-                var itemPrice = itemRepository.findPriceByName(item.getName());
-                item.setPrice(BigDecimal.valueOf(itemPrice));
-                totalPrice = item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())).add(totalPrice);
-            }
-        }
-
-        log.info("The calculation is over");
-        orderEntity.setTotalAmount(totalPrice);
     }
 
     @Transactional

@@ -13,7 +13,7 @@ public interface OrderMapper {
 
     OrderEntity toOrderEntity(OrderRqDto request);
 
-    OrderItemEntity toOrderItemEntity(OrderItemRqDto request);
+    OrderItemEntity toOrderItemEntity(OrderItemRsDto request);
 
     @AfterMapping
     default void linkOrderItemEntities(@MappingTarget OrderEntity orderEntity) {

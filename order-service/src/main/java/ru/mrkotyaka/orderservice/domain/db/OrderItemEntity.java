@@ -28,6 +28,9 @@ public class OrderItemEntity {
     @JoinColumn(name = "order_id")
     private OrderEntity orderId;
 
+    @Column(name = "store_id")
+    private String storeName;
+
     @Column(name = "name")
     private String name;
 

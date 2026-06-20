@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 import ru.mrkotyaka.commonlibs.enums.store.ProductCategory;
 
-import java.math.BigDecimal;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -33,5 +32,5 @@ public class ProductEntity {
     private ProductCategory category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.PERSIST)
-    private Set<StoreProductEntity> storeProducts = new LinkedHashSet<>();
+    private Set<WarehouseEntity> storeProducts = new LinkedHashSet<>();
 }

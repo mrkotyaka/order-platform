@@ -22,7 +22,7 @@ public interface ProductMapper {
     @Mapping(target = "storeProducts", expression = "java(mapStoreProducts(entity.getStoreProducts()))")
     ProductRsDto toDto(ProductEntity entity);
 
-    default Set<StoreProductInProductRsDto> mapStoreProducts(Set<StoreProductEntity> storeProducts) {
+    default Set<StoreProductInProductRsDto> mapStoreProducts(Set<WarehouseEntity> storeProducts) {
         if (storeProducts == null) return Set.of();
 
         return storeProducts.stream()
