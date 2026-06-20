@@ -24,10 +24,8 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
@@ -39,6 +37,12 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
 
     implementation("org.liquibase:liquibase-core")
+
+    // tests
+    testImplementation("org.springframework.boot:spring-boot-starter-test") // JUnit5 + Mockito
+    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
+    testImplementation("org.testcontainers:postgresql:1.20.4")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
 }
 
 dependencyManagement {
