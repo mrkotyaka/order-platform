@@ -8,6 +8,6 @@ public record StoreRsDto(
         String name,
         String address,
         int rating,
-        Set<StoreProductInStoreRsDto> inventory
+        Set<WarehouseInStoreRsDto> inventory
 ) {
 }

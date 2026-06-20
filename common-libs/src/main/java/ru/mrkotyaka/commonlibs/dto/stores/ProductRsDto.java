@@ -2,7 +2,6 @@ package ru.mrkotyaka.commonlibs.dto.stores;
 
 import ru.mrkotyaka.commonlibs.enums.store.ProductCategory;
 
-import java.math.BigDecimal;
 import java.util.Set;
 
 public record ProductRsDto(
@@ -10,6 +9,6 @@ public record ProductRsDto(
         String name,
         String description,
         ProductCategory category,
-        Set<StoreProductInProductRsDto> storeProducts
+        Set<WarehouseInProductRsDto> storeProducts
 ) {
 }

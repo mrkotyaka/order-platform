@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
-import ru.mrkotyaka.commonlibs.dto.stores.StoreProductInStoreRsDto;
+import ru.mrkotyaka.commonlibs.dto.stores.WarehouseInStoreRsDto;
 import ru.mrkotyaka.commonlibs.dto.stores.StoreRqDto;
 import ru.mrkotyaka.commonlibs.dto.stores.StoreRsDto;
 
@@ -22,12 +22,12 @@ public interface StoreMapper {
     @Mapping(target = "inventory", expression = "java(mapInventory(entity.getInventory()))")
     StoreRsDto toDto(StoreEntity entity);
 
-    default Set<StoreProductInStoreRsDto> mapInventory(Set<WarehouseEntity> inventory) {
+    default Set<WarehouseInStoreRsDto> mapInventory(Set<WarehouseEntity> inventory) {
         if (inventory == null) {
             return Set.of();
         }
         return inventory.stream()
-                .map(item -> StoreProductInStoreRsDto.builder()
+                .map(item -> WarehouseInStoreRsDto.builder()
                         .productId(item.getProduct().getId())
                         .productName(item.getProduct().getName())
                         .price(item.getPrice())

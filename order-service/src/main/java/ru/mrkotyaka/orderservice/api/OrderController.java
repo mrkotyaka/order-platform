@@ -48,7 +48,7 @@ public class OrderController {
                     authUserId, id, found.getCustomerId());
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to this order");
         }
-        return orderMapper.toOrderDto(found);
+        return orderMapper.toOrderRsDto(found);
     }
 
     @GetMapping
@@ -95,6 +95,9 @@ public class OrderController {
     @PostMapping("/cancel/{orderId}")
     public OrderRsDto cancelOrder(@PathVariable UUID orderId) {
         log.info("Canceling order `{}`", orderId);
+
+        //todo cancel!!!
+
         return orderProcessor.cancelOrder(orderId);
     }
 }

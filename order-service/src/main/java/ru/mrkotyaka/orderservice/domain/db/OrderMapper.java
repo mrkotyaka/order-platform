@@ -2,7 +2,6 @@ package ru.mrkotyaka.orderservice.domain.db;
 
 import org.mapstruct.*;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRqDto;
-import ru.mrkotyaka.commonlibs.dto.order.OrderItemRqDto;
 import ru.mrkotyaka.commonlibs.dto.order.OrderItemRsDto;
 import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
 
@@ -15,16 +14,16 @@ public interface OrderMapper {
 
     OrderItemEntity toOrderItemEntity(OrderItemRsDto request);
 
-    @AfterMapping
-    default void linkOrderItemEntities(@MappingTarget OrderEntity orderEntity) {
-        orderEntity
-                .getItems()
-                .forEach(
-                        orderItemEntity -> orderItemEntity.setOrderId(orderEntity));
-    }
+//    @AfterMapping
+//    default void linkOrderItemEntities(@MappingTarget OrderEntity orderEntity) {
+//        orderEntity
+//                .getItems()
+//                .forEach(
+//                        orderItemEntity -> orderItemEntity.setOrderId(orderEntity));
+//    }
 
     @Mapping(source = "id", target = "orderId")
-    OrderRsDto toOrderDto(OrderEntity orderEntity);
+    OrderRsDto toOrderRsDto(OrderEntity orderEntity);
 
-    OrderItemRsDto toOrderItemDto(OrderItemEntity entity);
+//    OrderItemRsDto toOrderItemDto(OrderItemEntity entity);
 }

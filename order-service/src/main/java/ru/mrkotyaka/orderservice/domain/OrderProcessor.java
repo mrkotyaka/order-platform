@@ -49,12 +49,16 @@ public class OrderProcessor {
     private final StoreHttpClient storeHttpClient;
     private final KafkaTemplate<UUID, OrderPaidEvent> kafkaTemplate;
     private final KafkaTemplate<UUID, NotificationEvent> notificationKafkaTemplate;
+    private final KafkaTemplate<UUID, OrderRsDto> warehouseKafkaTemplate;
 
     @Value("${order-paid-topic}")
     private String orderPaidTopic;
 
     @Value("${notification-topic}")
     private String notificationTopic;
+
+    @Value("${warehouse-topic}")
+    private String warehouseTopic;
 
     @Transactional
     public OrderRsDto create(OrderRqDto request, UUID authUserId) {
@@ -98,7 +102,7 @@ public class OrderProcessor {
         );
 
         log.info("Order `{}` was created successfully", saved.getId());
-        return orderMapper.toOrderDto(saved);
+        return orderMapper.toOrderRsDto(saved);
     }
 
     @Transactional(readOnly = true)
@@ -115,7 +119,7 @@ public class OrderProcessor {
         var allOrders = orderRepository.findAll();
 
         for (var order : allOrders) {
-            allOrdersDTO.add(orderMapper.toOrderDto(order));
+            allOrdersDTO.add(orderMapper.toOrderRsDto(order));
         }
 
         return allOrdersDTO;
@@ -127,7 +131,7 @@ public class OrderProcessor {
         var allOrders = orderRepository.findAllPendingPayment();
 
         for (var order : allOrders) {
-            allPendingPaymentOrdersDTO.add(orderMapper.toOrderDto(order));
+            allPendingPaymentOrdersDTO.add(orderMapper.toOrderRsDto(order));
         }
 
         return allPendingPaymentOrdersDTO;
@@ -163,7 +167,7 @@ public class OrderProcessor {
         }
 
         var saved = orderRepository.save(entity);
-        return orderMapper.toOrderDto(saved);
+        return orderMapper.toOrderRsDto(saved);
     }
 
     private void sendOrderPaidEvent(
@@ -230,7 +234,7 @@ public class OrderProcessor {
         entity.setDeliveredAt(LocalDateTime.now());
         var saved = orderRepository.save(entity);
         log.info("Order `{}` delivered", orderId);
-        return orderMapper.toOrderDto(saved);
+        return orderMapper.toOrderRsDto(saved);
     }
 
     public void sendNotification(UUID userId, NotificationType notificationType, String message) {
@@ -246,23 +250,26 @@ public class OrderProcessor {
     public OrderRsDto cancelOrder(UUID orderId) {
         var entity = getOrderById(orderId);
         var actualStatus = entity.getOrderStatus();
-        log.info("actualStatus={}", actualStatus);
+        log.info("Processor: ActualStatus={}", actualStatus);
 
         if (actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED) && !isPossibleCancel(orderId)) {
-            log.info("You can not cancel order `{}`. Delivery already process", orderId);
+            log.info("Processor: You can not cancel order `{}`. Delivery already process", orderId);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can not cancel order `%s`. Delivery already process".formatted(orderId));
         }
 
         return switch (actualStatus) {
             case PAYMENT_FAILED ->
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order status Payment failed");
-            case CANCELED -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order status Canceled");
-            case DELIVERED -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please call our office");
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Processor: Order status Payment failed");
+            case CANCELED -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Processor: Order status Canceled");
+            case DELIVERED -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Processor: Please call our office");
             case PENDING_PAYMENT -> {
                 entity.setOrderStatus(OrderStatus.CANCELED);
                 var saved = orderRepository.save(entity);
-                log.info("Order `{}` was cancelled", orderId);
-                yield orderMapper.toOrderDto(saved);
+
+                warehouseRefundedEventSending(saved);
+
+                log.info("Processor: Order `{}` was cancelled", orderId);
+                yield orderMapper.toOrderRsDto(saved);
             }
             case PAID, DELIVERY_ASSIGNED -> {
                 var response = paymentHttpClient
@@ -283,6 +290,8 @@ public class OrderProcessor {
 
                 var saved = orderRepository.save(entity);
 
+                warehouseRefundedEventSending(saved);
+
                 if (actualStatus.equals(OrderStatus.DELIVERY_ASSIGNED)) {
                     sendNotification(
                             deliveryHttpClient.getCourierId(orderId),
@@ -290,9 +299,18 @@ public class OrderProcessor {
                             "Dear courier! Delivery of the order `%s` was canceled".formatted(saved.getId())
                     );
                 }
-                yield orderMapper.toOrderDto(saved);
+                yield orderMapper.toOrderRsDto(saved);
             }
         };
+    }
+
+    private void warehouseRefundedEventSending(OrderEntity saved) {
+        log.info("Processor: Sending event for refunded stocks");
+        warehouseKafkaTemplate.send(
+                warehouseTopic,
+                saved.getId(),
+                orderMapper.toOrderRsDto(saved)
+        ).thenAccept(result -> log.info("Processor: Order `{}` warehouse event sent", saved.getId()));
     }
 
     @Transactional(readOnly = true)
@@ -312,7 +330,7 @@ public class OrderProcessor {
         var entities = orderRepository.findAllByOrderStatus(orderStatus);
 
         for (var entity : entities) {
-            ordersDto.add(orderMapper.toOrderDto(entity));
+            ordersDto.add(orderMapper.toOrderRsDto(entity));
         }
         return ordersDto;
     }

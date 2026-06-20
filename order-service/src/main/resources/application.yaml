@@ -46,6 +46,7 @@ delivery-service:
 # exchange data topics
 order-paid-topic: order.events
 delivery-assigned-topic: delivery.events
+warehouse-topic: warehouse.event
 
 # notification topics
 notification-topic: notifications.events

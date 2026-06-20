@@ -20,7 +20,7 @@ public class ExternalController {
 
     private final StoreProcessor storeProcessor;
 
-    @PostMapping("/storeproducts/itemprice")
+    @PostMapping("/warehouse/itemprice")
     Set<OrderItemRsDto> getItemPrice(@RequestBody PriceRequestDto request) {
         return storeProcessor.getItemPrice(request);
     }

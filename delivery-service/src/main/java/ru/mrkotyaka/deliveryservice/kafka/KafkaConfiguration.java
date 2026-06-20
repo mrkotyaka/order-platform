@@ -70,8 +70,7 @@ public class KafkaConfiguration {
 
     // Для CourierRatingUpdater
     @Bean
-    public KafkaListenerContainerFactory<?> reviewEventListenerFactory(
-            ConsumerFactory<UUID, ReviewRsDto> reviewEventConsumerFactory) {
+    public KafkaListenerContainerFactory<?> reviewEventListenerFactory(ConsumerFactory<UUID, ReviewRsDto> reviewEventConsumerFactory) {
         var factory = new ConcurrentKafkaListenerContainerFactory<UUID, ReviewRsDto>();
         factory.setConsumerFactory(reviewEventConsumerFactory);
         factory.setBatchListener(false);

@@ -7,12 +7,15 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.mrkotyaka.commonlibs.dto.order.OrderItemRsDto;
+import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
+import ru.mrkotyaka.commonlibs.dto.order.PriceRequestDto;
 import ru.mrkotyaka.commonlibs.dto.stores.*;
+import ru.mrkotyaka.commonlibs.enums.store.WarehouseEntryStatus;
 import ru.mrkotyaka.storeservice.domain.db.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -21,10 +24,10 @@ import java.util.stream.Collectors;
 public class StoreProcessor {
     private final StoreRepository storeRepository;
     private final ProductRepository productRepository;
-    private final StoreProductRepository storeProductRepository;
+    private final WarehouseRepository warehouseRepository;
     private final StoreMapper storeMapper;
     private final ProductMapper productMapper;
-    private final StoreProductMapper storeProductMapper;
+    private final WarehouseMapper warehouseMapper;
 
     @Transactional(readOnly = true)
     public List<StoreRsDto> getStores() {
@@ -47,7 +50,7 @@ public class StoreProcessor {
         log.info("Getting all saved products");
         var products = productRepository.findAll();
 
-        if(products.isEmpty()) {
+        if (products.isEmpty()) {
             log.info("No products found");
             return List.of();
         }
@@ -142,57 +145,62 @@ public class StoreProcessor {
     }
 
     @Transactional
-    public StoreProductRsDto createProductStore(StoreProductRqDto request) {
+    public WarehouseRsDto createProductStore(WarehouseRqDto request) {
         log.info("Adding product `{}` to store `{}`", request.productId(), request.storeId());
 
+        log.info("Validate store `{}`", request.storeId());
         var store = storeRepository.findById(request.storeId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Store `%s` not found".formatted(request.storeId())));
+        log.info("Validate store `{}` is done", request.storeId());
 
+        log.info("Validate product `{}`", request.productId());
         var product = productRepository.findById(request.productId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Product `%s` not found".formatted(request.productId())));
+        log.info("Validate product `{}` is done", request.productId());
 
-        var id = StoreProductId.builder()
+        var id = WarehouseId.builder()
                 .storeId(request.storeId())
                 .productId(request.productId())
                 .build();
 
-        if (storeProductRepository.existsById(id)) {
-            log.warn("Product `{}` already exists in store `{}`", request.productId(), request.storeId());
+        if (warehouseRepository.existsById(id)) {
+            log.warn("Product `{}` from store `{}` already exists", request.productId(), request.storeId());
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
-                    "Product `%s` already exists in this store `%s`".formatted(request.productId(), request.storeId()));
+                    "Product `%s` from store `%s` already exists".formatted(request.productId(), request.storeId()));
         }
 
-        var storeProduct = StoreProductEntity.builder()
+        var storeProduct = WarehouseEntity.builder()
                 .id(id)
+                .entryType(request.entryType())
                 .store(store)
                 .product(product)
                 .price(request.price())
                 .stock(request.stock())
                 .build();
 
-        var saved = storeProductRepository.save(storeProduct);
-        log.info("Product `{}` added to store successfully", saved.getId());
+        var saved = warehouseRepository.save(storeProduct);
+        log.info("Product `{}` from store `{}` added successfully", saved.getId(), saved.getProduct().getId());
 
-        return storeProductMapper.toDto(saved);
+        return warehouseMapper.toDto(saved);
     }
 
     @Transactional(readOnly = true)
-    public List<StoreProductRsDto> getStoreProducts() {
+    public List<WarehouseRsDto> getStoreProducts() {
         log.info("Getting all store products");
-        return storeProductRepository.findAll()
+        return warehouseRepository.findAll()
                 .stream()
-                .map(storeProductMapper::toDto)
+                .map(warehouseMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<StoreProductRsDto> getProductsByStore(UUID storeId) {
-        log.info("Getting products for store `{}`", storeId);
+    public List<WarehouseRsDto> getProductsByStore(UUID storeId) {
+        log.info("Getting products from store `{}`", storeId);
 
         if (!storeRepository.existsById(storeId)) {
             throw new ResponseStatusException(
@@ -200,14 +208,14 @@ public class StoreProcessor {
                     "Store `%s` not found".formatted(storeId));
         }
 
-        return storeProductRepository.findByStoreId(storeId)
+        return warehouseRepository.findByStoreId(storeId)
                 .stream()
-                .map(storeProductMapper::toDto)
+                .map(warehouseMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<StoreProductRsDto> getStoresByProduct(UUID productId) {
+    public List<WarehouseRsDto> getStoresByProduct(UUID productId) {
         log.info("Getting stores for product `{}`", productId);
 
         if (!productRepository.existsById(productId)) {
@@ -216,63 +224,128 @@ public class StoreProcessor {
                     "Product `%s` not found".formatted(productId));
         }
 
-        return storeProductRepository.findByProductId(productId)
+        return warehouseRepository.findByProductId(productId)
                 .stream()
-                .map(storeProductMapper::toDto)
+                .map(warehouseMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public StoreProductRsDto getStoreProduct(UUID storeId, UUID productId) {
-        log.info("Getting store `{}` product `{}`", storeId, productId);
+    public WarehouseRsDto getStoreProduct(UUID storeId, UUID productId) {
+        log.info("Getting product `{}` from store `{}` ", productId, storeId);
         var entity = validateStoreProduct(storeId, productId);
-        return storeProductMapper.toDto(entity);
+        return warehouseMapper.toDto(entity);
     }
 
     @Transactional
-    public StoreProductRsDto updateStoreProduct(StoreProductRqDto request) {
-        log.info("Updating store `{}` product `{}`", request.storeId(), request.productId());
+    public WarehouseRsDto updateStoreProduct(WarehouseRqDto request) {
+        log.info("Start updating entryType `{}`, store `{}` and product `{}`", request.entryType(), request.storeId(), request.productId());
 
         var entity = validateStoreProduct(request.storeId(), request.productId());
 
+        entity.setEntryType(request.entryType());
         entity.setPrice(request.price());
         entity.setStock(request.stock());
 
-        var updated = storeProductRepository.save(entity);
-        log.info("Store `{}` product `{}` updated", request.storeId(), request.productId());
+        var updated = warehouseRepository.save(entity);
+        log.info("EntryType `{}`, store `{}` and product `{}` was updated", request.entryType(), request.storeId(), request.productId());
 
-        return storeProductMapper.toDto(updated);
+        return warehouseMapper.toDto(updated);
     }
 
     @Transactional
     public void deleteStoreProduct(UUID storeId, UUID productId) {
         log.info("Deleting store `{}` product `{}`", storeId, productId);
 
-        var id = StoreProductId.builder()
+        var id = WarehouseId.builder()
                 .storeId(storeId)
                 .productId(productId)
                 .build();
 
-        if (!storeProductRepository.existsById(id)) {
+        if (!warehouseRepository.existsById(id)) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "Product `%s` not found in store `%s`".formatted(storeId, productId));
         }
 
-        storeProductRepository.deleteById(id);
+        warehouseRepository.deleteById(id);
         log.info("Store `{}` product `{}` deleted", storeId, productId);
     }
 
     @NonNull
-    private StoreProductEntity validateStoreProduct(UUID storeId, UUID productId) {
-        var id = StoreProductId.builder()
+    private WarehouseEntity validateStoreProduct(UUID storeId, UUID productId) {
+        var id = WarehouseId.builder()
                 .storeId(storeId)
                 .productId(productId)
                 .build();
 
-        return storeProductRepository.findById(id)
+        return warehouseRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Product `%s` not found in store `%s`".formatted(storeId, productId)));
+    }
+
+    @Transactional
+    public Set<OrderItemRsDto> getItemPrice(PriceRequestDto request) {
+        log.warn("Start getting price");
+        Set<OrderItemRsDto> orderItemRsDtos = new HashSet<>();
+
+        for (var item : request.items()) {
+            BigDecimal itemPrice = warehouseRepository.findByStoreNameAndProductName(request.storeName(), item.name(), item.quantity());
+            BigDecimal itemQuantity = BigDecimal.valueOf(item.quantity());
+
+            if (itemPrice == null) throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Item `%s` not found or stock is less".formatted(item.name()));
+
+            log.info("Creating RECEIPTS record");
+//            UUID storeId = storeRepository.findStoreByName(request.storeName(), item.name());
+//            UUID productId = productRepository.findProductByName(request.storeName(), item.name());
+            var warehouseId = warehouseRepository.findWarehouseIdByNames(request.storeName(), item.name());
+            log.warn("Finding storeId `{}` and productId `{}` in warehouse", warehouseId.storeId(), warehouseId.productId());
+
+            createProductStore(WarehouseRqDto.builder()
+                    .entryType(WarehouseEntryStatus.EXPENSES)
+                    .storeId(warehouseId.storeId())
+                    .productId(warehouseId.productId())
+                    .price(itemPrice.negate())
+                    .stock(itemQuantity.negate())
+                    .build());
+
+            orderItemRsDtos.add(OrderItemRsDto.builder()
+                    .name(item.name())
+                    .quantity(item.quantity())
+                    .price(itemPrice)
+                    .build());
+        }
+        return orderItemRsDtos;
+    }
+
+    @Transactional
+    public void warehouseRefundedProcess(OrderRsDto event) {
+        log.info("Create REFUNDED record");
+
+        event.items().forEach(
+                item -> {
+                    UUID storeId = storeRepository.findStoreByName(event.storeName(), item.name());
+                    UUID productId = productRepository.findProductByName(event.storeName(), item.name());
+                    BigDecimal quantity = BigDecimal.valueOf(item.quantity());
+
+                    createProductStore(WarehouseRqDto.builder()
+                            .entryType(WarehouseEntryStatus.REFUNDS)
+                            .storeId(storeId)
+                            .productId(productId)
+                            .price(item.price())
+                            .stock(quantity)
+                            .build());
+                }
+        );
+    }
+
+    public WarehouseRemainderDto warehouseInventory(String storeName, String productName) {
+
+        //todo проверка остатков, наличие сторПродукта
+
+        return warehouseRepository.getWarehouseInventory(storeName, productName);
     }
 }

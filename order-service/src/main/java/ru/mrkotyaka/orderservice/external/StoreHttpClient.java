@@ -14,6 +14,6 @@ import java.util.Set;
         url = "${store-service.url}")
 public interface StoreHttpClient {
 
-    @PostMapping("/api/external/storeproducts/itemprice")
+    @PostMapping("/api/external/warehouse/itemprice")
     Set<OrderItemRsDto> getItemPrice(@RequestBody PriceRequestDto request);
 }

@@ -3,11 +3,12 @@ package ru.mrkotyaka.storeservice.domain.db;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+import ru.mrkotyaka.commonlibs.enums.store.WarehouseEntryStatus;
 
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "store_products",
+@Table(name = "warehouse_entry",
         indexes = {
                 @Index(name = "idx_store_product_store_id", columnList = "store_id"),
                 @Index(name = "idx_store_product_product_id", columnList = "product_id")
@@ -20,11 +21,15 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class StoreProductEntity {
+public class WarehouseEntity {
 
     @EmbeddedId
     @EqualsAndHashCode.Include
-    private StoreProductId id;
+    private WarehouseId id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "entry_type", nullable = false)
+    private WarehouseEntryStatus entryType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("storeId")

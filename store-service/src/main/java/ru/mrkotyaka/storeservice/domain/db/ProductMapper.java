@@ -6,7 +6,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 import ru.mrkotyaka.commonlibs.dto.stores.ProductRqDto;
 import ru.mrkotyaka.commonlibs.dto.stores.ProductRsDto;
-import ru.mrkotyaka.commonlibs.dto.stores.StoreProductInProductRsDto;
+import ru.mrkotyaka.commonlibs.dto.stores.WarehouseInProductRsDto;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,11 +22,11 @@ public interface ProductMapper {
     @Mapping(target = "storeProducts", expression = "java(mapStoreProducts(entity.getStoreProducts()))")
     ProductRsDto toDto(ProductEntity entity);
 
-    default Set<StoreProductInProductRsDto> mapStoreProducts(Set<WarehouseEntity> storeProducts) {
+    default Set<WarehouseInProductRsDto> mapStoreProducts(Set<WarehouseEntity> storeProducts) {
         if (storeProducts == null) return Set.of();
 
         return storeProducts.stream()
-                .map(item -> StoreProductInProductRsDto.builder()
+                .map(item -> WarehouseInProductRsDto.builder()
                         .storeId(item.getStore().getId())
                         .storeName(item.getStore().getName())
                         .price(item.getPrice())

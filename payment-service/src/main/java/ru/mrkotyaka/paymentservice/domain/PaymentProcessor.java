@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PaymentService {
+public class PaymentProcessor {
 
     private final PaymentRepository paymentRepository;
     private final PaymentMapper paymentMapper;
@@ -29,7 +29,7 @@ public class PaymentService {
 
         if (request.cashFlow().equals(CashFlow.DEBIT)) {
             if (found.isPresent()) {
-                log.info("Payment request already exists for order `{}`", request.orderId());
+                log.info("Processor: Payment request already exists for order `{}`", request.orderId());
                 return paymentMapper.toPaymentRsDto(found.get());
             }
 
@@ -39,17 +39,17 @@ public class PaymentService {
                     ? PaymentStatus.PAYMENT_FAILED
                     : PaymentStatus.PAYMENT_SUCCEEDED;
 
-            log.warn("kilian.row: paymentStatus {}", paymentStatus);
+            log.warn("Processor: paymentStatus {}", paymentStatus);
 
             payment.setPaymentStatus(paymentStatus);
 
-            log.warn("kilian.row: orderId {}", payment.getOrderId());
+            log.warn("Processor: orderId {}", payment.getOrderId());
 
             return paymentMapper.toPaymentRsDto(paymentRepository.save(payment));
 
         } else if (request.cashFlow().equals(CashFlow.CREDIT)) {
 
-            log.warn("kilian.row: cashFlow {}", request.cashFlow());
+            log.warn("Processor: cashFlow {}", request.cashFlow());
 
             var entity = getPaymentEntity(request, found);
 

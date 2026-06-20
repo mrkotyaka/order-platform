@@ -16,6 +16,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import ru.mrkotyaka.commonlibs.dto.order.OrderRsDto;
 import ru.mrkotyaka.commonlibs.kafka.delivery.DeliveryAssignedEvent;
 import ru.mrkotyaka.commonlibs.kafka.delivery.OrderPaidEvent;
 import ru.mrkotyaka.commonlibs.kafka.notification.NotificationEvent;
@@ -44,6 +45,12 @@ public class KafkaConfiguration {
     // 3. Шаблон для NotificationEvent
     @Bean
     public KafkaTemplate<UUID, NotificationEvent> notificationKafkaTemplate(DefaultKafkaProducerFactory<UUID, Object> pf) {
+        return new KafkaTemplate(pf);
+    }
+
+    // 4. Шаблон для WarehouseEvent
+    @Bean
+    public KafkaTemplate<UUID, OrderRsDto> warehouseKafkaTemplate(DefaultKafkaProducerFactory<UUID, Object> pf) {
         return new KafkaTemplate(pf);
     }
 
